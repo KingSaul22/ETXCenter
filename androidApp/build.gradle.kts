@@ -23,6 +23,8 @@ dependencies {
 android {
     namespace = "com.kingsaul22.etxcenter"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+    ndkVersion = "30.0.14904198 rc1"
+    buildToolsVersion = "37.0.0"
 
     defaultConfig {
         applicationId = "com.kingsaul22.etxcenter"
@@ -38,7 +40,8 @@ android {
     }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
         }
     }
     compileOptions {
