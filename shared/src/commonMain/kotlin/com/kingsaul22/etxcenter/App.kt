@@ -13,11 +13,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
+import com.kingsaul22.etxcenter.core.theme.ETXCenterTheme
+import com.kingsaul22.etxcenter.core.ui.layout.AdaptiveScaffold
 import com.kingsaul22.etxcenter.feature.auth.AuthUiState
 import com.kingsaul22.etxcenter.feature.auth.AuthViewModel
-import com.kingsaul22.etxcenter.feature.home.HomeScreen
 import org.koin.compose.koinInject
-import com.kingsaul22.etxcenter.core.theme.ETXCenterTheme
 
 @Composable
 @Preview
@@ -36,9 +37,7 @@ fun App() {
                 }
 
                 is AuthUiState.Authenticated -> {
-                    // Later, this will be the AppNavHost().
-                    // For now, we render the HomeScreen directly to prove it works
-                    HomeScreen()
+                    ETXCenterApp()
                 }
 
                 is AuthUiState.Error -> {
@@ -56,4 +55,10 @@ fun App() {
             }
         }
     }
+}
+
+@Composable
+private fun ETXCenterApp() {
+    val navController = rememberNavController()
+    AdaptiveScaffold(navController = navController)
 }
