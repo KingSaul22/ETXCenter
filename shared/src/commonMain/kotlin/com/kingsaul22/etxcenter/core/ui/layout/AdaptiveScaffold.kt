@@ -63,10 +63,10 @@ fun AdaptiveScaffold(navController: NavHostController) {
                 if (isCompact) {
                     AppNavHost(
                         navController = navController,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
                     )
                 } else {
-                    Row(Modifier.fillMaxSize().padding(innerPadding)) {
+                    Row(Modifier.fillMaxSize()) {
                         NavigationRail {
                             TopLevelDestination.entries.forEach { destination ->
                                 NavigationRailItem(
