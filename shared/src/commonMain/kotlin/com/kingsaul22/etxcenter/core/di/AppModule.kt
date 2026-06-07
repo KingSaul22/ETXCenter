@@ -8,10 +8,15 @@ import com.kingsaul22.etxcenter.domain.repository.IPlayerRepository
 import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
 import com.kingsaul22.etxcenter.feature.auth.AuthViewModel
 import com.kingsaul22.etxcenter.feature.home.HomeViewModel
+import com.kingsaul22.etxcenter.feature.live.LiveViewModel
+import com.kingsaul22.etxcenter.feature.players.PlayersViewModel
+import com.kingsaul22.etxcenter.feature.stats.StatsViewModel
+import com.kingsaul22.etxcenter.feature.teams.TeamsViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.database.database
 import org.koin.core.context.startKoin
+import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 val appModule = module {
@@ -27,10 +32,15 @@ val appModule = module {
     // Register the ViewModel (using modern Koin DSL)
     factory { AuthViewModel(get()) }
     factory { HomeViewModel(get(), get()) }
+    factory { LiveViewModel() }
+    factory { StatsViewModel() }
+    factory { TeamsViewModel() }
+    factory { PlayersViewModel() }
 }
 
-fun initKoin() {
+fun initKoin(config: KoinAppDeclaration? = null) {
     startKoin {
+        config?.invoke(this)
         modules(appModule)
     }
 }
