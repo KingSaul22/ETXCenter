@@ -20,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,10 +29,15 @@ import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.theme.ETXCenterTheme
 import com.kingsaul22.etxcenter.core.ui.components.QuickActionCard
 import com.kingsaul22.etxcenter.core.ui.components.StatCard
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: HomeViewModel = koinInject()
+) {
+    val state by viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -70,19 +77,19 @@ fun HomeScreen() {
             ) {
                 StatCard(
                     label = "Teams",
-                    value = "12",
+                    value = state.teamCount.toString(),
                     iconLetter = "T",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     label = "Players",
-                    value = "48",
+                    value = state.playerCount.toString(),
                     iconLetter = "P",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
                     label = "Events",
-                    value = "3",
+                    value = state.activeEventsCount.toString(),
                     iconLetter = "E",
                     modifier = Modifier.weight(1f)
                 )

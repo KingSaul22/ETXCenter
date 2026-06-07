@@ -7,6 +7,7 @@ import com.kingsaul22.etxcenter.domain.repository.IAuthRepository
 import com.kingsaul22.etxcenter.domain.repository.IPlayerRepository
 import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
 import com.kingsaul22.etxcenter.feature.auth.AuthViewModel
+import com.kingsaul22.etxcenter.feature.home.HomeViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.database.database
@@ -25,6 +26,7 @@ val appModule = module {
 
     // Register the ViewModel (using modern Koin DSL)
     factory { AuthViewModel(get()) }
+    factory { HomeViewModel(get(), get()) }
 }
 
 fun initKoin() {
