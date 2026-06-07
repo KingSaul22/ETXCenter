@@ -2,8 +2,10 @@ package com.kingsaul22.etxcenter.core.di
 
 import com.kingsaul22.etxcenter.data.repository.AuthRepositoryImpl
 import com.kingsaul22.etxcenter.data.repository.PlayerRepositoryImpl
+import com.kingsaul22.etxcenter.data.repository.TeamRepositoryImpl
 import com.kingsaul22.etxcenter.domain.repository.IAuthRepository
 import com.kingsaul22.etxcenter.domain.repository.IPlayerRepository
+import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
 import com.kingsaul22.etxcenter.feature.auth.AuthViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -19,6 +21,7 @@ val appModule = module {
     // Bind the Interface to the Implementation
     single<IAuthRepository> { AuthRepositoryImpl(get()) }
     single<IPlayerRepository> { PlayerRepositoryImpl(get()) }
+    single<ITeamRepository> { TeamRepositoryImpl(get()) }
 
     // Register the ViewModel (using modern Koin DSL)
     factory { AuthViewModel(get()) }
