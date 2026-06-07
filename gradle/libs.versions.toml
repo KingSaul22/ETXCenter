@@ -18,6 +18,7 @@ material3 = "1.11.0-alpha07"
 koin = "4.2.1"
 firebaseKmp = "2.4.0" # GitLive Firebase SDK
 navigationCompose = "2.9.2"
+materialIconsExtended = "1.7.3"
 kotlinxSerialization = "1.11.0"
 firebaseBom = "34.14.0"
 googleServices = "4.4.4"
@@ -50,8 +51,10 @@ koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseKmp" }
 firebase-database = { module = "dev.gitlive:firebase-database", version.ref = "firebaseKmp" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
 # Testing
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
