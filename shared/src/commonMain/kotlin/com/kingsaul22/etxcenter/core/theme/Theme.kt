@@ -248,7 +248,7 @@ fun ETXCenterTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = appTypography(),
+        typography = getAppTypography(),
         content = content
     )
 }
