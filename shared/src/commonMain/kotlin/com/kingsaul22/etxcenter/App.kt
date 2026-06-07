@@ -17,6 +17,7 @@ import com.kingsaul22.etxcenter.feature.auth.AuthUiState
 import com.kingsaul22.etxcenter.feature.auth.AuthViewModel
 import com.kingsaul22.etxcenter.feature.home.HomeScreen
 import org.koin.compose.koinInject
+import com.kingsaul22.etxcenter.core.theme.ETXCenterTheme
 
 @Composable
 @Preview
@@ -24,7 +25,10 @@ fun App() {
     val viewModel: AuthViewModel = koinInject()
     val state by viewModel.uiState.collectAsState()
 
-    MaterialTheme {
+    ETXCenterTheme(
+        darkTheme = true,
+        dynamicColor = false
+    ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             when (state) {
                 is AuthUiState.Loading -> {
