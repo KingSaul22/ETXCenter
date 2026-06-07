@@ -19,6 +19,7 @@ koin = "4.2.1"
 firebaseKmp = "2.4.0" # GitLive Firebase SDK
 navigationCompose = "2.9.2"
 kotlinxSerialization = "1.11.0"
+firebaseBom = "34.14.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -46,6 +47,7 @@ firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebaseK
 firebase-database = { module = "dev.gitlive:firebase-database", version.ref = "firebaseKmp" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
