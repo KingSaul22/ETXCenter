@@ -14,7 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -23,9 +23,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kingsaul22.etxcenter.core.theme.ETXCenterTheme
 import com.kingsaul22.etxcenter.core.ui.components.QuickActionCard
 import com.kingsaul22.etxcenter.core.ui.components.StatCard
 import org.koin.compose.koinInject
@@ -37,18 +35,23 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    Column(Modifier.fillMaxSize()) {
-        TopAppBar(
-            title = { Text("SAVETX") },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+    // This clean screen-level Scaffold ensures the TopAppBar merges beautifully
+    // underneath the status bar without inset doubling!
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("SAVETX") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
             )
-        )
-
+        }
+    ) { screenPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(screenPadding) // Applies the safe content padding below the app bar
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -139,16 +142,6 @@ fun HomeScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun HomeScreenPreview() {
-    ETXCenterTheme {
-        Surface {
-            HomeScreen()
         }
     }
 }
