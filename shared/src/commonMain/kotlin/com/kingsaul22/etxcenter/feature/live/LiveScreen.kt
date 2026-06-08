@@ -38,10 +38,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kingsaul22.etxcenter.domain.model.LiveEvent
+import com.kingsaul22.etxcenter.core.ui.localization.AppStrings
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.domain.model.PlayerTelemetry
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
+
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 
 private val BlueTeam = Color(0xFF1565C0)
 private val OrangeTeam = Color(0xFFE65100)
@@ -53,11 +57,16 @@ fun LiveScreen(
     viewModel: LiveViewModel = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
+    
+    val liveTitle = if (strings.languageCode == "es") "Partido en Vivo" else "Live Match"
+    val noActiveMatch = if (strings.languageCode == "es") "No hay partido activo" else "No active match running"
+    val liveEvents = if (strings.languageCode == "es") "Eventos en Vivo" else "Live Events"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Live Match") },
+                title = { Text(liveTitle) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -81,7 +90,7 @@ fun LiveScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No active match running",
+                        text = noActiveMatch,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -103,12 +112,14 @@ fun LiveScreen(
                         arena = state.arena,
                         isOvertime = state.isOvertime,
                         hasWinner = state.hasWinner,
-                        winner = state.winner
+                        winner = state.winner,
+                        languageCode = strings.languageCode
                     )
 
                     ScoreboardCard(
                         scoreBlue = state.scoreBlue,
-                        scoreOrange = state.scoreOrange
+                        scoreOrange = state.scoreOrange,
+                        languageCode = strings.languageCode
                     )
 
                     ClockRow(
@@ -117,20 +128,20 @@ fun LiveScreen(
                     )
 
                     if (state.playerTelemetry.isNotEmpty()) {
-                        LiveTelemetryBoard(telemetry = state.playerTelemetry)
+                        LiveTelemetryBoard(telemetry = state.playerTelemetry, strings = strings)
                     }
 
                     Text(
-                        text = "Live Events",
+                        text = liveEvents,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold
                     )
 
                     if (state.events.isEmpty()) {
-                        EventsEmptyPlaceholder()
+                        EventsEmptyPlaceholder(languageCode = strings.languageCode)
                     } else {
                         state.events.forEach { event ->
-                            LiveEventCard(event = event)
+                            LiveEventCard(event = event, languageCode = strings.languageCode)
                         }
                     }
 
@@ -142,19 +153,23 @@ fun LiveScreen(
 }
 
 @Composable
-private fun LiveTelemetryBoard(telemetry: List<PlayerTelemetry>) {
+private fun LiveTelemetryBoard(telemetry: List<PlayerTelemetry>, strings: AppStrings) {
     val bluePlayers = telemetry.filter { it.team == 0 }
     val orangePlayers = telemetry.filter { it.team == 1 }
 
+    val telemetryTitle = if (strings.languageCode == "es") "Telemetría del Jugador" else "Player Telemetry"
+    val blueTeamLabel = if (strings.languageCode == "es") "EQUIPO AZUL" else "BLUE TEAM"
+    val orangeTeamLabel = if (strings.languageCode == "es") "EQUIPO NARANJA" else "ORANGE TEAM"
+
     Text(
-        text = "Player Telemetry",
+        text = telemetryTitle,
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.SemiBold
     )
 
     if (bluePlayers.isNotEmpty()) {
         TeamTelemetrySection(
-            label = "BLUE TEAM",
+            label = blueTeamLabel,
             color = BlueTeam,
             players = bluePlayers
         )
@@ -162,7 +177,7 @@ private fun LiveTelemetryBoard(telemetry: List<PlayerTelemetry>) {
 
     if (orangePlayers.isNotEmpty()) {
         TeamTelemetrySection(
-            label = "ORANGE TEAM",
+            label = orangeTeamLabel,
             color = OrangeTeam,
             players = orangePlayers
         )
@@ -192,6 +207,10 @@ private fun PlayerTelemetryCard(
     player: PlayerTelemetry,
     boostColor: Color
 ) {
+    val strings = LocalStrings.current
+    val scoreLabel = if (strings.languageCode == "es") "Puntos" else "Score"
+    val goalsLabel = if (strings.languageCode == "es") "Goles" else "Goals"
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -225,10 +244,10 @@ private fun PlayerTelemetryCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatBadge(label = "Score", value = player.score)
-                StatBadge(label = "Goals", value = player.goals)
-                StatBadge(label = "Shots", value = player.shots)
-                StatBadge(label = "Saves", value = player.saves)
+                StatBadge(label = scoreLabel, value = player.score)
+                StatBadge(label = goalsLabel, value = player.goals)
+                StatBadge(label = strings.shots, value = player.shots)
+                StatBadge(label = strings.saves, value = player.saves)
             }
         }
     }
@@ -255,7 +274,8 @@ private fun MatchHeader(
     arena: String,
     isOvertime: Boolean,
     hasWinner: Boolean,
-    winner: String
+    winner: String,
+    languageCode: String
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -284,8 +304,9 @@ private fun MatchHeader(
         }
         if (hasWinner && winner.isNotEmpty()) {
             Spacer(modifier = Modifier.width(8.dp))
+            val winsText = if (languageCode == "es") "GANA" else "WINS"
             Text(
-                text = "${winner.uppercase()} WINS",
+                text = "${winner.uppercase()} $winsText",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = if (winner == "blue") BlueTeam else OrangeTeam
@@ -295,7 +316,9 @@ private fun MatchHeader(
 }
 
 @Composable
-private fun EventsEmptyPlaceholder() {
+private fun EventsEmptyPlaceholder(languageCode: String) {
+    val titleText = if (languageCode == "es") "Aún no hay eventos" else "No events yet"
+    val descText = if (languageCode == "es") "Los goles, salvadas y otros eventos aparecerán aquí." else "Goals, saves, and other events will appear here."
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -304,13 +327,13 @@ private fun EventsEmptyPlaceholder() {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "No events yet",
+                text = titleText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Goals, saves, and other events will appear here.",
+                text = descText,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
@@ -319,7 +342,7 @@ private fun EventsEmptyPlaceholder() {
 }
 
 @Composable
-private fun LiveEventCard(event: LiveEvent) {
+private fun LiveEventCard(event: LiveEvent, languageCode: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -334,7 +357,7 @@ private fun LiveEventCard(event: LiveEvent) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = event.displayText(),
+                    text = event.displayText(languageCode),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -351,8 +374,12 @@ private fun LiveEventCard(event: LiveEvent) {
 @Composable
 private fun ScoreboardCard(
     scoreBlue: Int,
-    scoreOrange: Int
+    scoreOrange: Int,
+    languageCode: String
 ) {
+    val blueLabel = if (languageCode == "es") "AZUL" else "BLUE"
+    val orangeLabel = if (languageCode == "es") "NARANJA" else "ORANGE"
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
@@ -367,7 +394,7 @@ private fun ScoreboardCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TeamScore(
-                label = "BLUE",
+                label = blueLabel,
                 score = scoreBlue,
                 color = BlueTeam,
                 modifier = Modifier.weight(1f)
@@ -381,7 +408,7 @@ private fun ScoreboardCard(
             )
 
             TeamScore(
-                label = "ORANGE",
+                label = orangeLabel,
                 score = scoreOrange,
                 color = OrangeTeam,
                 modifier = Modifier.weight(1f)
@@ -462,12 +489,13 @@ private fun ClockRow(
     }
 }
 
-private fun LiveEvent.displayText(): String = when (type) {
-    "countdownbegin" -> "Countdown started"
+private fun LiveEvent.displayText(languageCode: String): String = when (type) {
+    "countdownbegin" -> if (languageCode == "es") "Comenzó la cuenta regresiva" else "Countdown started"
     "ballhit" -> {
         val preSpeed = data["pre_hit_speed"] ?: "0"
         val postSpeed = data["post_hit_speed"] ?: "0"
-        "Ball hit \u2014 speed: $preSpeed \u2192 $postSpeed kph"
+        val hitText = if (languageCode == "es") "Golpe de balón" else "Ball hit"
+        "$hitText \u2014 velocidad: $preSpeed \u2192 $postSpeed kph"
     }
     else -> type
 }
