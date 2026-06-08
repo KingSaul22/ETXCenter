@@ -7,9 +7,11 @@ import com.kingsaul22.etxcenter.domain.model.Team
 import com.kingsaul22.etxcenter.domain.model.TeamStats
 import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retry
 
 class TeamRepositoryImpl(
     private val database: FirebaseDatabase
@@ -29,7 +31,13 @@ class TeamRepositoryImpl(
                     null
                 }
             }
-        }.catch { e ->
+        }
+        .retry { e ->
+            e.printStackTrace()
+            delay(1000)
+            true
+        }
+        .catch { e ->
             e.printStackTrace()
             emit(emptyList())
         }
@@ -47,7 +55,13 @@ class TeamRepositoryImpl(
                     null
                 }
             }
-        }.catch { e ->
+        }
+        .retry { e ->
+            e.printStackTrace()
+            delay(1000)
+            true
+        }
+        .catch { e ->
             e.printStackTrace()
             emit(emptyList())
         }
