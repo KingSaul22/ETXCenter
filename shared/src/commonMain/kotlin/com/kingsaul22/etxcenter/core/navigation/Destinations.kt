@@ -39,3 +39,6 @@ val TopLevelDestination.icon: ImageVector
         TopLevelDestination.Teams -> Icons.Default.Face
         TopLevelDestination.Players -> Icons.Default.Person
     }
+
+@Serializable
+data class MatchDetailsDestination(val matchId: String)
