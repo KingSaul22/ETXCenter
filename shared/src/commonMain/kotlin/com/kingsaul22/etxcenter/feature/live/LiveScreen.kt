@@ -96,12 +96,22 @@ fun LiveScreen(
                 ) {
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    MatchHeader(
+                        arena = state.arena,
+                        isOvertime = state.isOvertime,
+                        hasWinner = state.hasWinner,
+                        winner = state.winner
+                    )
+
                     ScoreboardCard(
                         scoreBlue = state.scoreBlue,
                         scoreOrange = state.scoreOrange
                     )
 
-                    ClockRow(timeRemainingSeconds = state.timeRemainingSeconds)
+                    ClockRow(
+                        timeRemainingSeconds = state.timeRemainingSeconds,
+                        hasWinner = state.hasWinner
+                    )
 
                     Text(
                         text = "Live Events",
@@ -120,6 +130,50 @@ fun LiveScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun MatchHeader(
+    arena: String,
+    isOvertime: Boolean,
+    hasWinner: Boolean,
+    winner: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = arena,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (isOvertime) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Surface(
+                color = ClockWarning,
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text(
+                    text = "OT",
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+        if (hasWinner && winner.isNotEmpty()) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "${winner.uppercase()} WINS",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = if (winner == "blue") BlueTeam else OrangeTeam
+            )
         }
     }
 }
@@ -266,13 +320,17 @@ private fun TeamScore(
 
 @Composable
 private fun ClockRow(
-    timeRemainingSeconds: Long
+    timeRemainingSeconds: Long,
+    hasWinner: Boolean
 ) {
     val mm = (timeRemainingSeconds / 60).toString().padStart(2, '0')
     val ss = (timeRemainingSeconds % 60).toString().padStart(2, '0')
     val formatted = "$mm:$ss"
-    val timeColor =
-        if (timeRemainingSeconds < 30) ClockWarning else MaterialTheme.colorScheme.onSurface
+    val timeColor = when {
+        hasWinner -> MaterialTheme.colorScheme.onSurfaceVariant
+        timeRemainingSeconds < 30 -> ClockWarning
+        else -> MaterialTheme.colorScheme.onSurface
+    }
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -280,7 +338,7 @@ private fun ClockRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = formatted,
+            text = if (hasWinner) "FINAL" else formatted,
             style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.Medium,
             color = timeColor
