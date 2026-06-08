@@ -12,4 +12,6 @@ interface ITeamRepository {
     suspend fun createTeam(name: String, logoUrl: String?): Result<Unit>
 
     suspend fun deleteTeam(teamId: String): Result<Unit>
+
+    suspend fun updateTeamRoster(teamId: String, playerIds: List<String>): Result<Unit>
 }

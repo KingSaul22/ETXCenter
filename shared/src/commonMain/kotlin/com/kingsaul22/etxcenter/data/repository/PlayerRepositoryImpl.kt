@@ -7,9 +7,11 @@ import com.kingsaul22.etxcenter.domain.model.Player
 import com.kingsaul22.etxcenter.domain.model.PlayerStats
 import com.kingsaul22.etxcenter.domain.repository.IPlayerRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.retry
 
 class PlayerRepositoryImpl(
     private val database: FirebaseDatabase
@@ -30,7 +32,13 @@ class PlayerRepositoryImpl(
                     null
                 }
             }
-        }.catch { e ->
+        }
+        .retry { e ->
+            e.printStackTrace()
+            delay(1000)
+            true
+        }
+        .catch { e ->
             e.printStackTrace()
             emit(emptyList())
         }
@@ -48,7 +56,13 @@ class PlayerRepositoryImpl(
                     null
                 }
             }
-        }.catch { e ->
+        }
+        .retry { e ->
+            e.printStackTrace()
+            delay(1000)
+            true
+        }
+        .catch { e ->
             e.printStackTrace()
             emit(emptyList())
         }

@@ -17,6 +17,7 @@ import com.kingsaul22.etxcenter.feature.players.PlayersViewModel
 import com.kingsaul22.etxcenter.feature.stats.StatsViewModel
 import com.kingsaul22.etxcenter.feature.stats.MatchDetailsViewModel
 import com.kingsaul22.etxcenter.feature.teams.TeamsViewModel
+import com.kingsaul22.etxcenter.feature.teams.ManageTeamsViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.database.database
@@ -42,6 +43,7 @@ val appModule = module {
     factory { LiveViewModel(get()) }
     factory { StatsViewModel(get(), get()) }
     factory { TeamsViewModel(get()) }
+    factory { ManageTeamsViewModel(get(), get()) }
     factory { PlayersViewModel(get()) }
     factory { params -> MatchDetailsViewModel(matchId = params.get(), get(), get()) }
 }
