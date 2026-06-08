@@ -22,8 +22,20 @@ class ManageCalendarViewModel(
         teamRepository.getTeamsFlow(),
         matchRepository.getMatchesFlow(limit = 100)
     ) { entries, teams, matches ->
+        val mappedEntries = entries.map { entry ->
+            val matchedIds = matches.filter { match ->
+                val matchTime = match.timestamp.epochSeconds
+                val inTimeWindow = matchTime in entry.startTime.epochSeconds..entry.endTime.epochSeconds
+                val sameTeams = (match.blueTeamId == entry.blueTeamId && match.orangeTeamId == entry.orangeTeamId) ||
+                        (match.blueTeamId == entry.orangeTeamId && match.orangeTeamId == entry.blueTeamId)
+                inTimeWindow && sameTeams
+            }.map { it.matchId }
+
+            entry.copy(matchIds = matchedIds)
+        }
+
         ManageCalendarUiState(
-            calendarEntries = entries,
+            calendarEntries = mappedEntries,
             teams = teams,
             playedMatches = matches,
             isLoading = false
@@ -34,15 +46,15 @@ class ManageCalendarViewModel(
         initialValue = ManageCalendarUiState(isLoading = true)
     )
 
-    fun createCalendarEntry(blueTeamId: String, orangeTeamId: String, dateTimeWindow: String, matchIds: List<String>) {
+    fun createCalendarEntry(blueTeamId: String, orangeTeamId: String, startTime: Long, endTime: Long) {
         viewModelScope.launch {
-            calendarRepository.createCalendarEntry(blueTeamId, orangeTeamId, dateTimeWindow, matchIds)
+            calendarRepository.createCalendarEntry(blueTeamId, orangeTeamId, startTime, endTime)
         }
     }
 
-    fun updateCalendarEntry(id: String, blueTeamId: String, orangeTeamId: String, dateTimeWindow: String, matchIds: List<String>) {
+    fun updateCalendarEntry(id: String, blueTeamId: String, orangeTeamId: String, startTime: Long, endTime: Long) {
         viewModelScope.launch {
-            calendarRepository.updateCalendarEntry(id, blueTeamId, orangeTeamId, dateTimeWindow, matchIds)
+            calendarRepository.updateCalendarEntry(id, blueTeamId, orangeTeamId, startTime, endTime)
         }
     }
 
