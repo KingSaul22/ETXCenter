@@ -59,6 +59,7 @@ private val BlueTeam = Color(0xFF1565C0)
 private val OrangeTeam = Color(0xFFE65100)
 private val ClockWarning = Color(0xFFFFA000)
 private val TwitchPurple = Color(0xFF9146FF)
+private const val TwitchChannel = "etxclan"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,7 +103,7 @@ fun LiveScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     TwitchStreamCard(
-                        channel = "etxclan",
+                        channel = TwitchChannel,
                         isExpanded = isStreamVisible,
                         onToggleExpanded = { isStreamVisible = !isStreamVisible }
                     )
@@ -134,7 +135,7 @@ fun LiveScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     TwitchStreamCard(
-                        channel = "etxcenter",
+                        channel = TwitchChannel,
                         isExpanded = isStreamVisible,
                         onToggleExpanded = { isStreamVisible = !isStreamVisible }
                     )
