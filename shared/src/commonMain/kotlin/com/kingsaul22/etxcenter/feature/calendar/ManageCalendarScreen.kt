@@ -19,6 +19,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.domain.model.CalendarEntry
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,17 +41,19 @@ fun ManageCalendarScreen(
     // Forms fields
     var blueTeamId by remember { mutableStateOf("") }
     var orangeTeamId by remember { mutableStateOf("") }
-    var dateTimeWindowInput by remember { mutableStateOf("") }
-    val selectedMatchIds = remember { mutableStateListOf<String>() }
+    var startTimeInput by remember { mutableStateOf("") }
+    var endTimeInput by remember { mutableStateOf("") }
 
-    // Roster checklist initialization helper
+    var showError by remember { mutableStateOf<String?>(null) }
+
+    // Form initialization helper
     LaunchedEffect(entryToEdit) {
-        selectedMatchIds.clear()
+        showError = null
         entryToEdit?.let { entry ->
             blueTeamId = entry.blueTeamId
             orangeTeamId = entry.orangeTeamId
-            dateTimeWindowInput = entry.dateTimeWindow
-            selectedMatchIds.addAll(entry.matchIds)
+            startTimeInput = formatEpochToDateTime(entry.startTime.epochSeconds)
+            endTimeInput = formatEpochToDateTime(entry.endTime.epochSeconds)
         }
     }
 
@@ -73,8 +80,9 @@ fun ManageCalendarScreen(
                 onClick = {
                     blueTeamId = ""
                     orangeTeamId = ""
-                    dateTimeWindowInput = ""
-                    selectedMatchIds.clear()
+                    startTimeInput = ""
+                    endTimeInput = ""
+                    showError = null
                     showCreateDialog = true
                 }
             ) {
@@ -113,6 +121,9 @@ fun ManageCalendarScreen(
                         val blueName = blueTeam?.name ?: entry.blueTeamId
                         val orangeName = orangeTeam?.name ?: entry.orangeTeamId
 
+                        val startStr = formatEpochToDateTime(entry.startTime.epochSeconds)
+                        val endStr = formatEpochToDateTime(entry.endTime.epochSeconds)
+
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -139,7 +150,7 @@ fun ManageCalendarScreen(
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
-                                            text = "Window: ${entry.dateTimeWindow}",
+                                            text = "Window: $startStr - $endStr",
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -169,11 +180,11 @@ fun ManageCalendarScreen(
                                     }
                                 }
 
-                                // Nested played matches list
+                                // Dynamic list of matched games
                                 if (entry.matchIds.isNotEmpty()) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Played Matches:",
+                                        text = "Played Matches (Auto-Joined):",
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary
@@ -222,12 +233,31 @@ fun ManageCalendarScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     OutlinedTextField(
-                        value = dateTimeWindowInput,
-                        onValueChange = { dateTimeWindowInput = it },
-                        label = { Text("Date & Time Window (e.g. Jun 10, 18:00)") },
+                        value = startTimeInput,
+                        onValueChange = { startTimeInput = it },
+                        label = { Text("Start Date & Time (YYYY-MM-DD HH:mm)") },
+                        placeholder = { Text("e.g. 2026-06-10 18:00") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    OutlinedTextField(
+                        value = endTimeInput,
+                        onValueChange = { endTimeInput = it },
+                        label = { Text("End Date & Time (YYYY-MM-DD HH:mm)") },
+                        placeholder = { Text("e.g. 2026-06-10 20:00") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    showError?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Select Blue Team", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
@@ -264,63 +294,33 @@ fun ManageCalendarScreen(
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Link Played Matches", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    if (state.playedMatches.isEmpty()) {
-                        Text("No played matches available.", style = MaterialTheme.typography.bodySmall)
-                    } else {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            state.playedMatches.forEach { match ->
-                                val isSelected = selectedMatchIds.contains(match.matchId)
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            if (isSelected) selectedMatchIds.remove(match.matchId)
-                                            else selectedMatchIds.add(match.matchId)
-                                        }
-                                        .padding(vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Checkbox(
-                                        checked = isSelected,
-                                        onCheckedChange = { checked ->
-                                            if (checked == true) selectedMatchIds.add(match.matchId)
-                                            else selectedMatchIds.remove(match.matchId)
-                                        }
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column {
-                                        Text(
-                                            text = "ID: ${match.matchId.take(8)}...",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                        Text(
-                                            text = "Result: ${match.blueScore} - ${match.orangeScore}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (blueTeamId.isNotBlank() && orangeTeamId.isNotBlank() && dateTimeWindowInput.isNotBlank()) {
-                            viewModel.createCalendarEntry(
-                                blueTeamId = blueTeamId,
-                                orangeTeamId = orangeTeamId,
-                                dateTimeWindow = dateTimeWindowInput,
-                                matchIds = selectedMatchIds.toList()
-                            )
-                            showCreateDialog = false
+                        val start = parseDateTimeToEpoch(startTimeInput)
+                        val end = parseDateTimeToEpoch(endTimeInput)
+                        if (start == null || end == null) {
+                            showError = "Invalid Date-Time format. Use YYYY-MM-DD HH:mm"
+                            return@TextButton
                         }
+                        if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
+                            showError = "Please select both teams"
+                            return@TextButton
+                        }
+                        if (start > end) {
+                            showError = "Start time must be before End time"
+                            return@TextButton
+                        }
+
+                        viewModel.createCalendarEntry(
+                            blueTeamId = blueTeamId,
+                            orangeTeamId = orangeTeamId,
+                            startTime = start,
+                            endTime = end
+                        )
+                        showCreateDialog = false
                     }
                 ) {
                     Text("Create")
@@ -347,12 +347,31 @@ fun ManageCalendarScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     OutlinedTextField(
-                        value = dateTimeWindowInput,
-                        onValueChange = { dateTimeWindowInput = it },
-                        label = { Text("Date & Time Window (e.g. Jun 10, 18:00)") },
+                        value = startTimeInput,
+                        onValueChange = { startTimeInput = it },
+                        label = { Text("Start Date & Time (YYYY-MM-DD HH:mm)") },
+                        placeholder = { Text("e.g. 2026-06-10 18:00") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    OutlinedTextField(
+                        value = endTimeInput,
+                        onValueChange = { endTimeInput = it },
+                        label = { Text("End Date & Time (YYYY-MM-DD HH:mm)") },
+                        placeholder = { Text("e.g. 2026-06-10 20:00") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    showError?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
                     Text("Select Blue Team", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
@@ -389,64 +408,34 @@ fun ManageCalendarScreen(
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Link Played Matches", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    if (state.playedMatches.isEmpty()) {
-                        Text("No played matches available.", style = MaterialTheme.typography.bodySmall)
-                    } else {
-                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            state.playedMatches.forEach { match ->
-                                val isSelected = selectedMatchIds.contains(match.matchId)
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            if (isSelected) selectedMatchIds.remove(match.matchId)
-                                            else selectedMatchIds.add(match.matchId)
-                                        }
-                                        .padding(vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Checkbox(
-                                        checked = isSelected,
-                                        onCheckedChange = { checked ->
-                                            if (checked == true) selectedMatchIds.add(match.matchId)
-                                            else selectedMatchIds.remove(match.matchId)
-                                        }
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column {
-                                        Text(
-                                            text = "ID: ${match.matchId.take(8)}...",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                        Text(
-                                            text = "Result: ${match.blueScore} - ${match.orangeScore}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (blueTeamId.isNotBlank() && orangeTeamId.isNotBlank() && dateTimeWindowInput.isNotBlank()) {
-                            viewModel.updateCalendarEntry(
-                                id = entry.id,
-                                blueTeamId = blueTeamId,
-                                orangeTeamId = orangeTeamId,
-                                dateTimeWindow = dateTimeWindowInput,
-                                matchIds = selectedMatchIds.toList()
-                            )
-                            entryToEdit = null
+                        val start = parseDateTimeToEpoch(startTimeInput)
+                        val end = parseDateTimeToEpoch(endTimeInput)
+                        if (start == null || end == null) {
+                            showError = "Invalid Date-Time format. Use YYYY-MM-DD HH:mm"
+                            return@TextButton
                         }
+                        if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
+                            showError = "Please select both teams"
+                            return@TextButton
+                        }
+                        if (start > end) {
+                            showError = "Start time must be before End time"
+                            return@TextButton
+                        }
+
+                        viewModel.updateCalendarEntry(
+                            id = entry.id,
+                            blueTeamId = blueTeamId,
+                            orangeTeamId = orangeTeamId,
+                            startTime = start,
+                            endTime = end
+                        )
+                        entryToEdit = null
                     }
                 ) {
                     Text("Save")
@@ -487,5 +476,31 @@ fun ManageCalendarScreen(
                 }
             }
         )
+    }
+}
+
+private fun parseDateTimeToEpoch(input: String): Long? {
+    return try {
+        val formatted = input.trim().replace(" ", "T")
+        val isoString = formatted + if (formatted.length == 16) ":00" else ""
+        val localDateTime = LocalDateTime.parse(isoString)
+        localDateTime.toInstant(TimeZone.currentSystemDefault()).epochSeconds
+    } catch (e: Exception) {
+        null
+    }
+}
+
+private fun formatEpochToDateTime(epochSeconds: Long): String {
+    return try {
+        val instant = Instant.fromEpochSeconds(epochSeconds)
+        val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+        val year = localDateTime.year
+        val month = localDateTime.monthNumber.toString().padStart(2, '0')
+        val day = localDateTime.dayOfMonth.toString().padStart(2, '0')
+        val hour = localDateTime.hour.toString().padStart(2, '0')
+        val minute = localDateTime.minute.toString().padStart(2, '0')
+        "$year-$month-$day $hour:$minute"
+    } catch (e: Exception) {
+        ""
     }
 }
