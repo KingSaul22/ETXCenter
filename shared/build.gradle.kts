@@ -42,6 +42,10 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             // Added
             implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.coil.network)
+        }
+        jvmMain.dependencies {
+            implementation(libs.coil.network)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -62,7 +66,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.coil.compose)
-            implementation(libs.coil.network)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
