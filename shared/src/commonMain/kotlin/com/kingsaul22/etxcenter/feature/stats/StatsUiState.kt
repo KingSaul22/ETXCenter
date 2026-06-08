@@ -1,5 +1,8 @@
 package com.kingsaul22.etxcenter.feature.stats
 
-data class StatsUiState(
-    val isLoading: Boolean = false
-)
+sealed interface StatsUiState {
+    data object Loading : StatsUiState
+    data class Success(
+        val matches: List<MatchProfile>
+    ) : StatsUiState
+}
