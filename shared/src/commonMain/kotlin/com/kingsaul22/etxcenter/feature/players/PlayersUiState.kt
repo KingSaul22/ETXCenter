@@ -1,5 +1,8 @@
 package com.kingsaul22.etxcenter.feature.players
 
-data class PlayersUiState(
-    val isLoading: Boolean = false
-)
+sealed interface PlayersUiState {
+    data object Loading : PlayersUiState
+    data class Success(
+        val players: List<PlayerProfile>
+    ) : PlayersUiState
+}
