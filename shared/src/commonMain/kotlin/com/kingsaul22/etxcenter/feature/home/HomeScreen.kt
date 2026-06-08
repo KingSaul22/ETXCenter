@@ -33,6 +33,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.ui.components.QuickActionCard
 import com.kingsaul22.etxcenter.core.ui.components.StatCard
+import com.kingsaul22.etxcenter.core.ui.localization.Language
+import com.kingsaul22.etxcenter.core.ui.localization.LocalLanguage
+import com.kingsaul22.etxcenter.core.ui.localization.LocalLanguageController
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,12 +50,30 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinInject()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
+    val currentLanguage = LocalLanguage.current
+    val languageController = LocalLanguageController.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("SAVETX") },
+                title = { Text(strings.appTitle) },
                 actions = {
+                    // Language Switcher Toggle Button
+                    IconButton(
+                        onClick = {
+                            val nextLang = if (currentLanguage == Language.EN) Language.ES else Language.EN
+                            languageController(nextLang)
+                        }
+                    ) {
+                        Text(
+                            text = if (currentLanguage == Language.EN) "ES" else "EN",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+
                     IconButton(
                         onClick = {
                             if (state.isAdmin) {
@@ -63,7 +85,7 @@ fun HomeScreen(
                     ) {
                         Icon(
                             imageVector = if (state.isAdmin) Icons.Default.LockOpen else Icons.Default.Lock,
-                            contentDescription = if (state.isAdmin) "Log out Admin" else "Admin Login"
+                            contentDescription = if (state.isAdmin) strings.adminLogout else strings.adminLogin
                         )
                     }
                 },
@@ -96,7 +118,7 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Admin Mode Active",
+                            text = strings.adminModeActive,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -108,13 +130,13 @@ fun HomeScreen(
             if (state.isAdmin) {
                 // Admin specific layout
                 Text(
-                    text = "Welcome back, Admin!",
+                    text = strings.welcomeBackAdmin,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
 
                 Text(
-                    text = "Here's the current database status.",
+                    text = strings.dbStatusTitle,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -124,19 +146,19 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     StatCard(
-                        label = "Teams",
+                        label = strings.statTeams,
                         value = state.teamCount.toString(),
                         iconLetter = "T",
                         modifier = Modifier.weight(1f)
                     )
                     StatCard(
-                        label = "Players",
+                        label = strings.statPlayers,
                         value = state.playerCount.toString(),
                         iconLetter = "P",
                         modifier = Modifier.weight(1f)
                     )
                     StatCard(
-                        label = "Events",
+                        label = strings.statEvents,
                         value = state.activeEventsCount.toString(),
                         iconLetter = "E",
                         modifier = Modifier.weight(1f)
@@ -144,7 +166,7 @@ fun HomeScreen(
                 }
 
                 Text(
-                    text = "Quick Actions",
+                    text = strings.quickActions,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -154,12 +176,12 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     QuickActionCard(
-                        label = "Manage Teams",
+                        label = strings.actionManageTeams,
                         onClick = onManageTeamsClick,
                         modifier = Modifier.weight(1f)
                     )
                     QuickActionCard(
-                        label = "Manage Players",
+                        label = strings.actionManagePlayers,
                         onClick = onManagePlayersClick,
                         modifier = Modifier.weight(1f)
                     )
@@ -169,12 +191,12 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     QuickActionCard(
-                        label = "Edit Metadata",
+                        label = strings.actionEditMetadata,
                         onClick = onManageMetadataClick,
                         modifier = Modifier.weight(1f)
                     )
                     QuickActionCard(
-                        label = "Manage Calendar",
+                        label = strings.actionManageCalendar,
                         onClick = onManageCalendarClick,
                         modifier = Modifier.weight(1f)
                     )
@@ -182,13 +204,13 @@ fun HomeScreen(
             } else {
                 // Fan/Non-Admin layout
                 Text(
-                    text = "Welcome to ETX League!",
+                    text = strings.welcomeToEtx,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold
                 )
 
                 Text(
-                    text = "Track your favorite teams and live scores in real-time.",
+                    text = strings.trackFavoriteTeams,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -216,7 +238,7 @@ fun HomeScreen(
                 }
 
                 Text(
-                    text = "Competition Resume",
+                    text = strings.competitionResume,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -226,13 +248,13 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     StatCard(
-                        label = "Total Teams",
+                        label = "Total ${strings.statTeams}",
                         value = state.teamCount.toString(),
                         iconLetter = "T",
                         modifier = Modifier.weight(1f)
                     )
                     StatCard(
-                        label = "Total Players",
+                        label = "Total ${strings.statPlayers}",
                         value = state.playerCount.toString(),
                         iconLetter = "P",
                         modifier = Modifier.weight(1f)

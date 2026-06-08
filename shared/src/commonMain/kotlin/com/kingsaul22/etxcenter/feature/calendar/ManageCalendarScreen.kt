@@ -27,6 +27,8 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageCalendarScreen(
@@ -34,6 +36,7 @@ fun ManageCalendarScreen(
     viewModel: ManageCalendarViewModel = koinInject()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
 
     var showCreateDialog by remember { mutableStateOf(false) }
     var entryToEdit by remember { mutableStateOf<CalendarEntry?>(null) }
@@ -67,12 +70,12 @@ fun ManageCalendarScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Matches Calendar") },
+                title = { Text(strings.manageCalendarTitle) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = strings.goBack
                         )
                     }
                 },
@@ -95,7 +98,7 @@ fun ManageCalendarScreen(
                     showCreateDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Calendar Entry")
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addCalendarDesc)
             }
         }
     ) { screenPadding ->
@@ -112,7 +115,7 @@ fun ManageCalendarScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No scheduled matches. Tap + to add one.",
+                        text = strings.emptyCalendarMsg,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -159,7 +162,7 @@ fun ManageCalendarScreen(
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
-                                            text = "Window: $startStr - $endStr",
+                                            text = "$strings.windowLabel: $startStr - $endStr",
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -175,14 +178,14 @@ fun ManageCalendarScreen(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Edit,
-                                                contentDescription = "Edit Entry",
+                                                contentDescription = strings.editRoster,
                                                 tint = MaterialTheme.colorScheme.primary
                                             )
                                         }
                                         IconButton(onClick = { entryToDelete = entry }) {
                                             Icon(
                                                 imageVector = Icons.Default.Delete,
-                                                contentDescription = "Delete Entry",
+                                                contentDescription = strings.delete,
                                                 tint = MaterialTheme.colorScheme.error
                                             )
                                         }
@@ -193,7 +196,7 @@ fun ManageCalendarScreen(
                                 if (entry.matchIds.isNotEmpty()) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = "Played Matches (Auto-Joined):",
+                                        text = strings.playedMatchesLabel,
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary
@@ -234,7 +237,7 @@ fun ManageCalendarScreen(
     // =============================================
     if (showCreateDialog) {
         CalendarEntryDialog(
-            title = "Create Calendar Entry",
+            title = strings.createCalendarTitle,
             startDate = startDate,
             startTime = startTime,
             endDate = endDate,
@@ -253,15 +256,15 @@ fun ManageCalendarScreen(
                 val start = parseDateTimeToEpoch("$startDate $startTime")
                 val end = parseDateTimeToEpoch("$endDate $endTime")
                 if (start == null || end == null) {
-                    showError = "Invalid Date-Time. Use YYYY-MM-DD for dates and HH:mm for times."
+                    showError = strings.invalidDateTimeMsg
                     return@CalendarEntryDialog
                 }
                 if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
-                    showError = "Please select both teams"
+                    showError = strings.selectBothTeamsMsg
                     return@CalendarEntryDialog
                 }
                 if (start > end) {
-                    showError = "Start time must be before End time"
+                    showError = strings.startBeforeEndMsg
                     return@CalendarEntryDialog
                 }
                 viewModel.createCalendarEntry(
@@ -272,7 +275,7 @@ fun ManageCalendarScreen(
                 )
                 showCreateDialog = false
             },
-            confirmLabel = "Create",
+            confirmLabel = strings.create,
             onDismiss = { showCreateDialog = false }
         )
     }
@@ -282,7 +285,7 @@ fun ManageCalendarScreen(
     // =============================================
     entryToEdit?.let { entry ->
         CalendarEntryDialog(
-            title = "Edit Calendar Entry",
+            title = strings.editCalendarTitle,
             startDate = startDate,
             startTime = startTime,
             endDate = endDate,
@@ -301,15 +304,15 @@ fun ManageCalendarScreen(
                 val start = parseDateTimeToEpoch("$startDate $startTime")
                 val end = parseDateTimeToEpoch("$endDate $endTime")
                 if (start == null || end == null) {
-                    showError = "Invalid Date-Time. Use YYYY-MM-DD for dates and HH:mm for times."
+                    showError = strings.invalidDateTimeMsg
                     return@CalendarEntryDialog
                 }
                 if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
-                    showError = "Please select both teams"
+                    showError = strings.selectBothTeamsMsg
                     return@CalendarEntryDialog
                 }
                 if (start > end) {
-                    showError = "Start time must be before End time"
+                    showError = strings.startBeforeEndMsg
                     return@CalendarEntryDialog
                 }
                 viewModel.updateCalendarEntry(
@@ -321,7 +324,7 @@ fun ManageCalendarScreen(
                 )
                 entryToEdit = null
             },
-            confirmLabel = "Save",
+            confirmLabel = strings.save,
             onDismiss = { entryToEdit = null }
         )
     }
@@ -332,9 +335,9 @@ fun ManageCalendarScreen(
     entryToDelete?.let { entry ->
         AlertDialog(
             onDismissRequest = { entryToDelete = null },
-            title = { Text("Delete Entry") },
+            title = { Text(strings.deleteCalendarConfirmTitle) },
             text = {
-                Text("Are you sure you want to delete this calendar entry? This action cannot be undone.")
+                Text(strings.deleteCalendarConfirmMsg)
             },
             confirmButton = {
                 TextButton(
@@ -346,12 +349,12 @@ fun ManageCalendarScreen(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete")
+                    Text(strings.delete)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { entryToDelete = null }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
@@ -383,6 +386,8 @@ private fun CalendarEntryDialog(
     confirmLabel: String,
     onDismiss: () -> Unit
 ) {
+    val strings = LocalStrings.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -395,7 +400,7 @@ private fun CalendarEntryDialog(
             ) {
                 // --- Start timestamp ---
                 Text(
-                    text = "Start",
+                    text = strings.startLabel,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -404,12 +409,12 @@ private fun CalendarEntryDialog(
                     timeValue = startTime,
                     onDateChange = onStartDateChange,
                     onTimeChange = onStartTimeChange,
-                    label = "Start"
+                    label = strings.startLabel
                 )
 
                 // --- End timestamp ---
                 Text(
-                    text = "End",
+                    text = strings.endLabel,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -418,7 +423,7 @@ private fun CalendarEntryDialog(
                     timeValue = endTime,
                     onDateChange = onEndDateChange,
                     onTimeChange = onEndTimeChange,
-                    label = "End"
+                    label = strings.endLabel
                 )
 
                 // --- Inline validation error ---
@@ -438,7 +443,7 @@ private fun CalendarEntryDialog(
                     teams = teams,
                     selectedTeamId = blueTeamId,
                     onTeamSelected = onBlueTeamSelected,
-                    label = "Blue Team"
+                    label = strings.blueTeamLabel
                 )
 
                 // --- Orange team selector ---
@@ -446,7 +451,7 @@ private fun CalendarEntryDialog(
                     teams = teams,
                     selectedTeamId = orangeTeamId,
                     onTeamSelected = onOrangeTeamSelected,
-                    label = "Orange Team"
+                    label = strings.orangeTeamLabel
                 )
             }
         },
@@ -457,7 +462,7 @@ private fun CalendarEntryDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(strings.cancel)
             }
         }
     )

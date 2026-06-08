@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +53,7 @@ fun ManageMetadataScreen(
     viewModel: ManageMetadataViewModel = koinInject()
 ) {
     val metadata by viewModel.metadata.collectAsState()
+    val strings = LocalStrings.current
 
     var showDialog by remember { mutableStateOf(false) }
     var keyInput by remember { mutableStateOf("") }
@@ -62,12 +64,12 @@ fun ManageMetadataScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Metadata") },
+                title = { Text(strings.manageMetadataTitle) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = strings.goBack
                         )
                     }
                 },
@@ -86,7 +88,7 @@ fun ManageMetadataScreen(
                     showDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Entry")
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addEntry)
             }
         }
     ) { screenPadding ->
@@ -101,7 +103,7 @@ fun ManageMetadataScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No metadata entries. Tap + to add one.",
+                        text = strings.metadataEmpty,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -156,12 +158,12 @@ fun ManageMetadataScreen(
                                             showDialog = true
                                         }
                                     ) {
-                                        Text("Edit")
+                                        Text(strings.editEntryLabel)
                                     }
                                     IconButton(onClick = { entryToDelete = key }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete Entry",
+                                            contentDescription = strings.deleteEntryLabel,
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -178,7 +180,7 @@ fun ManageMetadataScreen(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
-                Text(if (keyInput.isNotEmpty() && metadata.containsKey(keyInput)) "Edit Entry" else "Create Entry")
+                Text(if (keyInput.isNotEmpty() && metadata.containsKey(keyInput)) strings.editEntryTitle else strings.createEntryTitle)
             },
             text = {
                 Column(
@@ -188,7 +190,7 @@ fun ManageMetadataScreen(
                     OutlinedTextField(
                         value = keyInput,
                         onValueChange = { keyInput = it },
-                        label = { Text("Key") },
+                        label = { Text(strings.keyLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !metadata.containsKey(keyInput) || keyInput.isEmpty()
@@ -196,7 +198,7 @@ fun ManageMetadataScreen(
                     OutlinedTextField(
                         value = valueInput,
                         onValueChange = { valueInput = it },
-                        label = { Text("Value") },
+                        label = { Text(strings.valueLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -209,7 +211,7 @@ fun ManageMetadataScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Numeric value",
+                            text = strings.numericLabel,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -224,24 +226,23 @@ fun ManageMetadataScreen(
                         }
                     }
                 ) {
-                    Text("Save")
+                    Text(strings.save)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
     }
 
     entryToDelete?.let { key ->
+        val deleteText = strings.deleteMetadataConfirmMsg.replace("{key}", key)
         AlertDialog(
             onDismissRequest = { entryToDelete = null },
-            title = { Text("Delete Entry") },
-            text = {
-                Text("Are you sure you want to delete \"$key\"? This action cannot be undone.")
-            },
+            title = { Text(strings.deleteEntryLabel) },
+            text = { Text(deleteText) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -252,12 +253,12 @@ fun ManageMetadataScreen(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete")
+                    Text(strings.delete)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { entryToDelete = null }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )

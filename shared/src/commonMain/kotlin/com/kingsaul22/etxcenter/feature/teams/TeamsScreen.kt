@@ -36,17 +36,20 @@ import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.ui.components.TeamLogo
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamsScreen(
     viewModel: TeamsViewModel = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Teams Directory") },
+                title = { Text(strings.navTeams) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -89,6 +92,7 @@ fun TeamsScreen(
 
 @Composable
 private fun TeamCard(team: TeamProfile) {
+    val strings = LocalStrings.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
@@ -122,7 +126,7 @@ private fun TeamCard(team: TeamProfile) {
                     Spacer(modifier = Modifier.height(2.dp))
 
                     Text(
-                        text = "Matches Played: ${team.matchesPlayed}",
+                        text = "${strings.matchesPlayed}: ${team.matchesPlayed}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -132,11 +136,11 @@ private fun TeamCard(team: TeamProfile) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                StatChip(label = "Win%", value = "${team.winRatePercentage}%")
-                StatChip(label = "W-L", value = "${team.wins}-${team.losses}")
-                StatChip(label = "GF", value = team.goalsFor.toString())
-                StatChip(label = "GA", value = team.goalsAgainst.toString())
-                StatChip(label = "Demos", value = team.demos.toString())
+                StatChip(label = strings.winRate, value = "${team.winRatePercentage}%")
+                StatChip(label = strings.winLoss, value = "${team.wins}-${team.losses}")
+                StatChip(label = strings.goalsForShort, value = team.goalsFor.toString())
+                StatChip(label = strings.goalsAgainstShort, value = team.goalsAgainst.toString())
+                StatChip(label = strings.demosShort, value = team.demos.toString())
             }
         }
     }

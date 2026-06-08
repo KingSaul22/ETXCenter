@@ -22,6 +22,8 @@ import com.kingsaul22.etxcenter.core.navigation.TopLevelDestination
 import com.kingsaul22.etxcenter.core.navigation.icon
 import com.kingsaul22.etxcenter.core.navigation.label
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @Composable
 fun AdaptiveScaffold(navController: NavHostController) {
     BoxWithConstraints {
@@ -29,6 +31,7 @@ fun AdaptiveScaffold(navController: NavHostController) {
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
         val isCompact = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
+        val strings = LocalStrings.current
 
         CompositionLocalProvider(LocalWindowSizeClass provides windowSizeClass) {
             Scaffold(
@@ -36,6 +39,13 @@ fun AdaptiveScaffold(navController: NavHostController) {
                     if (isCompact) {
                         NavigationBar {
                             TopLevelDestination.entries.forEach { destination ->
+                                val label = when (destination) {
+                                    TopLevelDestination.Home -> strings.navHome
+                                    TopLevelDestination.Live -> strings.navLive
+                                    TopLevelDestination.Stats -> strings.navStats
+                                    TopLevelDestination.Teams -> strings.navTeams
+                                    TopLevelDestination.Players -> strings.navPlayers
+                                }
                                 NavigationBarItem(
                                     selected = currentRoute == destination::class.qualifiedName,
                                     onClick = {
@@ -50,10 +60,10 @@ fun AdaptiveScaffold(navController: NavHostController) {
                                     icon = {
                                         Icon(
                                             destination.icon,
-                                            contentDescription = destination.label
+                                            contentDescription = label
                                         )
                                     },
-                                    label = { Text(destination.label) }
+                                    label = { Text(label) }
                                 )
                             }
                         }
@@ -61,14 +71,21 @@ fun AdaptiveScaffold(navController: NavHostController) {
                 }
             ) { innerPadding ->
                 if (isCompact) {
-                    AppNavHost(
-                        navController = navController,
-                        modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
-                    )
+                     AppNavHost(
+                         navController = navController,
+                         modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+                     )
                 } else {
                     Row(Modifier.fillMaxSize()) {
                         NavigationRail {
                             TopLevelDestination.entries.forEach { destination ->
+                                val label = when (destination) {
+                                    TopLevelDestination.Home -> strings.navHome
+                                    TopLevelDestination.Live -> strings.navLive
+                                    TopLevelDestination.Stats -> strings.navStats
+                                    TopLevelDestination.Teams -> strings.navTeams
+                                    TopLevelDestination.Players -> strings.navPlayers
+                                }
                                 NavigationRailItem(
                                     selected = currentRoute == destination::class.qualifiedName,
                                     onClick = {
@@ -83,10 +100,10 @@ fun AdaptiveScaffold(navController: NavHostController) {
                                     icon = {
                                         Icon(
                                             destination.icon,
-                                            contentDescription = destination.label
+                                            contentDescription = label
                                         )
                                     },
-                                    label = { Text(destination.label) }
+                                    label = { Text(label) }
                                 )
                             }
                         }

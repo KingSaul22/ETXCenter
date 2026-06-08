@@ -42,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.ui.components.TeamLogo
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MatchDetailsScreen(
@@ -49,16 +51,17 @@ fun MatchDetailsScreen(
     onBackClick: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Match Details") },
+                title = { Text(strings.matchDetails) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = strings.goBack
                         )
                     }
                 },
@@ -85,12 +88,12 @@ fun MatchDetailsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Match not found.",
+                            text = strings.matchNotFound,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Button(onClick = onBackClick) {
-                            Text("Go Back")
+                            Text(strings.goBack)
                         }
                     }
                 }
@@ -186,7 +189,7 @@ fun MatchDetailsScreen(
 
                         // Comparative Stats Section
                         Text(
-                            text = "Comparative Stats",
+                            text = strings.comparativeStats,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -203,22 +206,22 @@ fun MatchDetailsScreen(
                                 verticalArrangement = Arrangement.spacedBy(20.dp)
                             ) {
                                 StatProgressBarRow(
-                                    label = "Shots",
+                                    label = strings.shots,
                                     blueValue = uiState.blueShots,
                                     orangeValue = uiState.orangeShots
                                 )
                                 StatProgressBarRow(
-                                    label = "Assists",
+                                    label = strings.assists,
                                     blueValue = uiState.blueAssists,
                                     orangeValue = uiState.orangeAssists
                                 )
                                 StatProgressBarRow(
-                                    label = "Saves",
+                                    label = strings.saves,
                                     blueValue = uiState.blueSaves,
                                     orangeValue = uiState.orangeSaves
                                 )
                                 StatProgressBarRow(
-                                    label = "Demos",
+                                    label = strings.demos,
                                     blueValue = uiState.blueDemos,
                                     orangeValue = uiState.orangeDemos
                                 )

@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.domain.model.Team
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageTeamsScreen(
@@ -27,6 +29,7 @@ fun ManageTeamsScreen(
 ) {
     val teams by viewModel.teams.collectAsState()
     val allPlayers by viewModel.players.collectAsState()
+    val strings = LocalStrings.current
 
     var showCreateDialog by remember { mutableStateOf(false) }
     var teamNameInput by remember { mutableStateOf("") }
@@ -45,12 +48,12 @@ fun ManageTeamsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Teams") },
+                title = { Text(strings.manageTeamsTitle) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = strings.goBack
                         )
                     }
                 },
@@ -67,7 +70,7 @@ fun ManageTeamsScreen(
                     showCreateDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Team")
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addTeamDesc)
             }
         }
     ) { screenPadding ->
@@ -82,7 +85,7 @@ fun ManageTeamsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No teams available. Tap + to add one.",
+                        text = strings.emptyTeamsMsg,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -118,12 +121,12 @@ fun ManageTeamsScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     TextButton(onClick = { teamRosterToEdit = team }) {
-                                        Text("Edit Roster")
+                                        Text(strings.editRoster)
                                     }
                                     IconButton(onClick = { teamToDelete = team }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete Team",
+                                            contentDescription = strings.delete,
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -139,12 +142,12 @@ fun ManageTeamsScreen(
     if (showCreateDialog) {
         AlertDialog(
             onDismissRequest = { showCreateDialog = false },
-            title = { Text("Create New Team") },
+            title = { Text(strings.createNewTeam) },
             text = {
                 OutlinedTextField(
                     value = teamNameInput,
                     onValueChange = { teamNameInput = it },
-                    label = { Text("Team Name") },
+                    label = { Text(strings.teamNameLabel) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -158,23 +161,24 @@ fun ManageTeamsScreen(
                         }
                     }
                 ) {
-                    Text("Create")
+                    Text(strings.create)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showCreateDialog = false }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
     }
 
     teamToDelete?.let { team ->
+        val confirmMsg = strings.deleteTeamConfirmMsgDynamic.replace("{name}", team.name)
         AlertDialog(
             onDismissRequest = { teamToDelete = null },
-            title = { Text("Delete Team") },
+            title = { Text(strings.deleteTeamConfirmTitle) },
             text = {
-                Text("Are you sure you want to delete team \"${team.name}\"? This action cannot be undone.")
+                Text(confirmMsg)
             },
             confirmButton = {
                 TextButton(
@@ -186,12 +190,12 @@ fun ManageTeamsScreen(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete")
+                    Text(strings.delete)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { teamToDelete = null }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
@@ -200,10 +204,10 @@ fun ManageTeamsScreen(
     teamRosterToEdit?.let { team ->
         AlertDialog(
             onDismissRequest = { teamRosterToEdit = null },
-            title = { Text("Edit Roster: ${team.name}") },
+            title = { Text("${strings.editRosterTitle}: ${team.name}") },
             text = {
                 if (allPlayers.isEmpty()) {
-                    Text("No players available to assign.")
+                    Text(strings.noPlayersAvailableMsg)
                 } else {
                     Column(
                         modifier = Modifier
@@ -246,13 +250,13 @@ fun ManageTeamsScreen(
                                     )
                                     if (player.teamId != null && player.teamId != team.id) {
                                         Text(
-                                            text = "Currently on: ${player.teamId}",
+                                                text = "${strings.currentlyOnMsg}${player.teamId}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error
                                         )
                                     } else if (player.teamId == team.id) {
                                         Text(
-                                            text = "Assigned to this team",
+                                                text = strings.assignedToTeamMsg,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.primary
                                         )
@@ -270,12 +274,12 @@ fun ManageTeamsScreen(
                         teamRosterToEdit = null
                     }
                 ) {
-                    Text("Save")
+                    Text(strings.save)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { teamRosterToEdit = null }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )

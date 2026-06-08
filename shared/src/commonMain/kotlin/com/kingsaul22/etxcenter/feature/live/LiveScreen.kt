@@ -37,6 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kingsaul22.etxcenter.core.ui.localization.AppStrings
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.domain.model.LiveEvent
 import com.kingsaul22.etxcenter.domain.model.PlayerTelemetry
 import kotlinx.datetime.TimeZone
@@ -53,11 +55,12 @@ fun LiveScreen(
     viewModel: LiveViewModel = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Live Match") },
+                title = { Text(strings.liveMatchTitle) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -81,7 +84,7 @@ fun LiveScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No active match running",
+                        text = strings.noActiveMatch,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -121,7 +124,7 @@ fun LiveScreen(
                     }
 
                     Text(
-                        text = "Live Events",
+                        text = strings.liveEvents,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -143,18 +146,19 @@ fun LiveScreen(
 
 @Composable
 private fun LiveTelemetryBoard(telemetry: List<PlayerTelemetry>) {
+    val strings = LocalStrings.current
     val bluePlayers = telemetry.filter { it.team == 0 }
     val orangePlayers = telemetry.filter { it.team == 1 }
 
     Text(
-        text = "Player Telemetry",
+        text = strings.playerTelemetry,
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.SemiBold
     )
 
     if (bluePlayers.isNotEmpty()) {
         TeamTelemetrySection(
-            label = "BLUE TEAM",
+            label = strings.blueTeam,
             color = BlueTeam,
             players = bluePlayers
         )
@@ -162,7 +166,7 @@ private fun LiveTelemetryBoard(telemetry: List<PlayerTelemetry>) {
 
     if (orangePlayers.isNotEmpty()) {
         TeamTelemetrySection(
-            label = "ORANGE TEAM",
+            label = strings.orangeTeam,
             color = OrangeTeam,
             players = orangePlayers
         )
@@ -192,6 +196,8 @@ private fun PlayerTelemetryCard(
     player: PlayerTelemetry,
     boostColor: Color
 ) {
+    val strings = LocalStrings.current
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -225,10 +231,10 @@ private fun PlayerTelemetryCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatBadge(label = "Score", value = player.score)
-                StatBadge(label = "Goals", value = player.goals)
-                StatBadge(label = "Shots", value = player.shots)
-                StatBadge(label = "Saves", value = player.saves)
+                StatBadge(label = strings.scoreLabel, value = player.score)
+                StatBadge(label = strings.goalsLabel, value = player.goals)
+                StatBadge(label = strings.shots, value = player.shots)
+                StatBadge(label = strings.saves, value = player.saves)
             }
         }
     }
@@ -257,6 +263,8 @@ private fun MatchHeader(
     hasWinner: Boolean,
     winner: String
 ) {
+    val strings = LocalStrings.current
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -274,7 +282,7 @@ private fun MatchHeader(
                 shape = MaterialTheme.shapes.small
             ) {
                 Text(
-                    text = "OT",
+                    text = strings.otBadge,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
@@ -285,7 +293,7 @@ private fun MatchHeader(
         if (hasWinner && winner.isNotEmpty()) {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "${winner.uppercase()} WINS",
+                text = "${winner.uppercase()} ${strings.winsSuffix}",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
                 color = if (winner == "blue") BlueTeam else OrangeTeam
@@ -296,6 +304,8 @@ private fun MatchHeader(
 
 @Composable
 private fun EventsEmptyPlaceholder() {
+    val strings = LocalStrings.current
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -304,13 +314,13 @@ private fun EventsEmptyPlaceholder() {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "No events yet",
+                text = strings.noEventsYet,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Goals, saves, and other events will appear here.",
+                text = strings.eventsDesc,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
             )
@@ -320,6 +330,8 @@ private fun EventsEmptyPlaceholder() {
 
 @Composable
 private fun LiveEventCard(event: LiveEvent) {
+    val strings = LocalStrings.current
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -334,7 +346,7 @@ private fun LiveEventCard(event: LiveEvent) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = event.displayText(),
+                    text = event.displayText(strings),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -353,6 +365,8 @@ private fun ScoreboardCard(
     scoreBlue: Int,
     scoreOrange: Int
 ) {
+    val strings = LocalStrings.current
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
@@ -367,7 +381,7 @@ private fun ScoreboardCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TeamScore(
-                label = "BLUE",
+                label = strings.blueShort,
                 score = scoreBlue,
                 color = BlueTeam,
                 modifier = Modifier.weight(1f)
@@ -381,7 +395,7 @@ private fun ScoreboardCard(
             )
 
             TeamScore(
-                label = "ORANGE",
+                label = strings.orangeShort,
                 score = scoreOrange,
                 color = OrangeTeam,
                 modifier = Modifier.weight(1f)
@@ -439,6 +453,7 @@ private fun ClockRow(
     timeRemainingSeconds: Long,
     hasWinner: Boolean
 ) {
+    val strings = LocalStrings.current
     val mm = (timeRemainingSeconds / 60).toString().padStart(2, '0')
     val ss = (timeRemainingSeconds % 60).toString().padStart(2, '0')
     val formatted = "$mm:$ss"
@@ -454,7 +469,7 @@ private fun ClockRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = if (hasWinner) "FINAL" else formatted,
+            text = if (hasWinner) strings.finalClock else formatted,
             style = MaterialTheme.typography.displaySmall,
             fontWeight = FontWeight.Medium,
             color = timeColor
@@ -462,12 +477,12 @@ private fun ClockRow(
     }
 }
 
-private fun LiveEvent.displayText(): String = when (type) {
-    "countdownbegin" -> "Countdown started"
+private fun LiveEvent.displayText(strings: AppStrings): String = when (type) {
+    "countdownbegin" -> strings.countdownStarted
     "ballhit" -> {
         val preSpeed = data["pre_hit_speed"] ?: "0"
         val postSpeed = data["post_hit_speed"] ?: "0"
-        "Ball hit \u2014 speed: $preSpeed \u2192 $postSpeed kph"
+        "${strings.ballHit} \u2014 velocidad: $preSpeed \u2192 $postSpeed kph"
     }
     else -> type
 }

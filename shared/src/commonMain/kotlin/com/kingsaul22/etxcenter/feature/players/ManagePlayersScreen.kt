@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.domain.model.Player
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManagePlayersScreen(
@@ -28,6 +30,7 @@ fun ManagePlayersScreen(
     viewModel: ManagePlayersViewModel = koinInject()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
 
     var showCreateDialog by remember { mutableStateOf(false) }
     var playerToEdit by remember { mutableStateOf<Player?>(null) }
@@ -41,12 +44,12 @@ fun ManagePlayersScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Players") },
+                title = { Text(strings.managePlayersTitle) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = strings.goBack
                         )
                     }
                 },
@@ -65,7 +68,7 @@ fun ManagePlayersScreen(
                     showCreateDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Player")
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addPlayerDesc)
             }
         }
     ) { screenPadding ->
@@ -82,7 +85,7 @@ fun ManagePlayersScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No players available. Tap + to add one.",
+                        text = strings.emptyPlayersMsg,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -144,7 +147,7 @@ fun ManagePlayersScreen(
                                             shape = MaterialTheme.shapes.extraSmall
                                         ) {
                                             Text(
-                                                text = "Unassigned / No Team",
+                                                text = strings.unassignedMsg,
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -165,14 +168,14 @@ fun ManagePlayersScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Edit,
-                                            contentDescription = "Edit Player",
+                                            contentDescription = strings.editRoster,
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
                                     IconButton(onClick = { playerToDelete = player }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete Player",
+                                            contentDescription = strings.delete,
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -189,7 +192,7 @@ fun ManagePlayersScreen(
     if (showCreateDialog) {
         AlertDialog(
             onDismissRequest = { showCreateDialog = false },
-            title = { Text("Create New Player") },
+            title = { Text(strings.createPlayerTitle) },
             text = {
                 Column(
                     modifier = Modifier
@@ -200,20 +203,20 @@ fun ManagePlayersScreen(
                     OutlinedTextField(
                         value = playerIdInput,
                         onValueChange = { playerIdInput = it },
-                        label = { Text("Platform ID (e.g. Epic|hash|0)") },
+                        label = { Text(strings.platformIdLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = displayNameInput,
                         onValueChange = { displayNameInput = it },
-                        label = { Text("Display Name") },
+                        label = { Text(strings.playerNameLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Select Team Assignment", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(strings.selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
 
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(
@@ -225,7 +228,7 @@ fun ManagePlayersScreen(
                         ) {
                             RadioButton(selected = selectedTeamId == null, onClick = { selectedTeamId = null })
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Unassigned / No Team")
+                            Text(strings.unassignedMsg)
                         }
                         state.teams.forEach { team ->
                             Row(
@@ -252,12 +255,12 @@ fun ManagePlayersScreen(
                         }
                     }
                 ) {
-                    Text("Create")
+                    Text(strings.create)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showCreateDialog = false }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
@@ -267,7 +270,7 @@ fun ManagePlayersScreen(
     playerToEdit?.let { player ->
         AlertDialog(
             onDismissRequest = { playerToEdit = null },
-            title = { Text("Edit Player") },
+            title = { Text(strings.editPlayerTitle) },
             text = {
                 Column(
                     modifier = Modifier
@@ -278,7 +281,7 @@ fun ManagePlayersScreen(
                     OutlinedTextField(
                         value = player.id,
                         onValueChange = {},
-                        label = { Text("Player ID (Read-only)") },
+                        label = { Text(strings.playerIdReadOnlyLabel) },
                         enabled = false,
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -286,13 +289,13 @@ fun ManagePlayersScreen(
                     OutlinedTextField(
                         value = displayNameInput,
                         onValueChange = { displayNameInput = it },
-                        label = { Text("Display Name") },
+                        label = { Text(strings.playerNameLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("Select Team Assignment", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(strings.selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
 
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(
@@ -304,7 +307,7 @@ fun ManagePlayersScreen(
                         ) {
                             RadioButton(selected = selectedTeamId == null, onClick = { selectedTeamId = null })
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Unassigned / No Team")
+                            Text(strings.unassignedMsg)
                         }
                         state.teams.forEach { team ->
                             Row(
@@ -331,12 +334,12 @@ fun ManagePlayersScreen(
                         }
                     }
                 ) {
-                    Text("Save")
+                    Text(strings.save)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { playerToEdit = null }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
@@ -344,11 +347,12 @@ fun ManagePlayersScreen(
 
     // Delete Player Confirmation Dialog
     playerToDelete?.let { player ->
+        val confirmMsg = strings.deletePlayerConfirmMsgDynamic.replace("{name}", player.displayName)
         AlertDialog(
             onDismissRequest = { playerToDelete = null },
-            title = { Text("Delete Player") },
+            title = { Text(strings.deletePlayerConfirmTitle) },
             text = {
-                Text("Are you sure you want to delete player \"${player.displayName}\"? This will unassign them from their team roster and delete their cumulative stats. This action cannot be undone.")
+                Text(confirmMsg)
             },
             confirmButton = {
                 TextButton(
@@ -360,12 +364,12 @@ fun ManagePlayersScreen(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete")
+                    Text(strings.delete)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { playerToDelete = null }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
