@@ -14,6 +14,7 @@ import com.kingsaul22.etxcenter.feature.auth.AuthViewModel
 import com.kingsaul22.etxcenter.feature.home.HomeViewModel
 import com.kingsaul22.etxcenter.feature.live.LiveViewModel
 import com.kingsaul22.etxcenter.feature.players.PlayersViewModel
+import com.kingsaul22.etxcenter.feature.players.ManagePlayersViewModel
 import com.kingsaul22.etxcenter.feature.stats.StatsViewModel
 import com.kingsaul22.etxcenter.feature.stats.MatchDetailsViewModel
 import com.kingsaul22.etxcenter.feature.teams.TeamsViewModel
@@ -44,6 +45,7 @@ val appModule = module {
     factory { StatsViewModel(get(), get()) }
     factory { TeamsViewModel(get()) }
     factory { ManageTeamsViewModel(get(), get()) }
+    factory { ManagePlayersViewModel(get(), get()) }
     factory { PlayersViewModel(get()) }
     factory { params -> MatchDetailsViewModel(matchId = params.get(), get(), get()) }
 }
