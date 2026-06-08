@@ -43,7 +43,7 @@ val appModule = module {
     factory { LiveViewModel(get()) }
     factory { StatsViewModel(get(), get()) }
     factory { TeamsViewModel(get()) }
-    factory { ManageTeamsViewModel(get()) }
+    factory { ManageTeamsViewModel(get(), get()) }
     factory { PlayersViewModel(get()) }
     factory { params -> MatchDetailsViewModel(matchId = params.get(), get(), get()) }
 }
