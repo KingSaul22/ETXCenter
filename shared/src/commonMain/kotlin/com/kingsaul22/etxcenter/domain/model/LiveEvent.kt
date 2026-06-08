@@ -1,6 +1,6 @@
 package com.kingsaul22.etxcenter.domain.model
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 data class LiveEvent(
     val id: String,

@@ -2,7 +2,7 @@ package com.kingsaul22.etxcenter.data.mapper
 
 import com.kingsaul22.etxcenter.data.dto.LiveEventDto
 import com.kingsaul22.etxcenter.domain.model.LiveEvent
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 fun LiveEventDto.toDomain(id: String): LiveEvent {
     val payload = buildMap {
