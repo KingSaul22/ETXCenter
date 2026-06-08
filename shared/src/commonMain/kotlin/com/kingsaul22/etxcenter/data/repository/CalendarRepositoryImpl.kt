@@ -42,8 +42,8 @@ class CalendarRepositoryImpl(
     override suspend fun createCalendarEntry(
         blueTeamId: String,
         orangeTeamId: String,
-        dateTimeWindow: String,
-        matchIds: List<String>
+        startTime: Long,
+        endTime: Long
     ): Result<Unit> {
         return try {
             val ref = database.reference("matches_calendar").push()
@@ -51,8 +51,8 @@ class CalendarRepositoryImpl(
             val dto = CalendarEntryDto(
                 blueTeamId = blueTeamId,
                 orangeTeamId = orangeTeamId,
-                dateTimeWindow = dateTimeWindow,
-                matches = matchIds.associateWith { true }
+                startTime = startTime,
+                endTime = endTime
             )
             ref.setValue(dto)
             Result.success(Unit)
@@ -66,15 +66,15 @@ class CalendarRepositoryImpl(
         id: String,
         blueTeamId: String,
         orangeTeamId: String,
-        dateTimeWindow: String,
-        matchIds: List<String>
+        startTime: Long,
+        endTime: Long
     ): Result<Unit> {
         return try {
             val dto = CalendarEntryDto(
                 blueTeamId = blueTeamId,
                 orangeTeamId = orangeTeamId,
-                dateTimeWindow = dateTimeWindow,
-                matches = matchIds.associateWith { true }
+                startTime = startTime,
+                endTime = endTime
             )
             database.reference("matches_calendar/$id").setValue(dto)
             Result.success(Unit)

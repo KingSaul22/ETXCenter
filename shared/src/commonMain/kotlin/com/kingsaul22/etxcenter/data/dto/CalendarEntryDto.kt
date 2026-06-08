@@ -7,6 +7,6 @@ import kotlinx.serialization.Serializable
 data class CalendarEntryDto(
     @SerialName("blue_team_id") val blueTeamId: String,
     @SerialName("orange_team_id") val orangeTeamId: String,
-    @SerialName("date_time_window") val dateTimeWindow: String,
-    @SerialName("matches") val matches: Map<String, Boolean> = emptyMap()
+    @SerialName("start_time") val startTime: Long,
+    @SerialName("end_time") val endTime: Long
 )
