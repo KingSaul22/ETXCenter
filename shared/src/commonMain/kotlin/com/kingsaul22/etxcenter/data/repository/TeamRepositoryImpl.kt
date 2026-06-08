@@ -52,4 +52,28 @@ class TeamRepositoryImpl(
             emit(emptyList())
         }
     }
+
+    override suspend fun createTeam(name: String, logoUrl: String?): Result<Unit> {
+        return try {
+            val teamRef = database.reference("teams").push()
+            val teamId = teamRef.key ?: return Result.failure(Exception("Failed to generate team ID"))
+            teamRef.setValue(TeamDto(name = name, logoUrl = logoUrl))
+            database.reference("stats_cumulative_teams/$teamId").setValue(TeamStatsDto())
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteTeam(teamId: String): Result<Unit> {
+        return try {
+            database.reference("teams/$teamId").removeValue()
+            database.reference("stats_cumulative_teams/$teamId").removeValue()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
 }
