@@ -29,4 +29,18 @@ class MatchRepositoryImpl(
                 }
             }
     }
+
+    override fun getMatchByIdFlow(matchId: String): Flow<MatchRecord?> {
+        return database.reference("matches_index/$matchId")
+            .valueEvents
+            .map { dataSnapshot ->
+                if (!dataSnapshot.exists) return@map null
+                try {
+                    dataSnapshot.value<MatchRecordDto>().toDomain()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
+                }
+            }
+    }
 }
