@@ -4,11 +4,13 @@ import app.cash.turbine.test
 import com.kingsaul22.etxcenter.domain.repository.AuthResult
 import com.kingsaul22.etxcenter.domain.repository.IAuthRepository
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -24,6 +26,7 @@ class AuthViewModelTest {
         try {
             val mockRepo: IAuthRepository = mockk()
             coEvery { mockRepo.signInSilently() } returns AuthResult.Success
+            every { mockRepo.getIsAdminFlow() } returns flowOf(false)
 
             val viewModel = AuthViewModel(mockRepo)
 
@@ -32,7 +35,7 @@ class AuthViewModelTest {
 
                 testScheduler.advanceUntilIdle()
 
-                assertEquals(AuthUiState.Authenticated, awaitItem())
+                assertEquals(AuthUiState.Authenticated(isAdmin = false), awaitItem())
                 cancelAndIgnoreRemainingEvents()
             }
         } finally {
@@ -72,6 +75,7 @@ class AuthViewModelTest {
             val error = RuntimeException("First attempt failed")
             val mockRepo: IAuthRepository = mockk()
             coEvery { mockRepo.signInSilently() } returns AuthResult.Failure(error) andThen AuthResult.Success
+            every { mockRepo.getIsAdminFlow() } returns flowOf(false)
 
             val viewModel = AuthViewModel(mockRepo)
 
@@ -84,7 +88,7 @@ class AuthViewModelTest {
                 assertEquals(AuthUiState.Loading, awaitItem())
 
                 testScheduler.advanceUntilIdle()
-                assertEquals(AuthUiState.Authenticated, awaitItem())
+                assertEquals(AuthUiState.Authenticated(isAdmin = false), awaitItem())
 
                 cancelAndIgnoreRemainingEvents()
             }
