@@ -15,6 +15,7 @@ import com.kingsaul22.etxcenter.feature.stats.MatchDetailsScreen
 import com.kingsaul22.etxcenter.feature.stats.MatchDetailsViewModel
 import com.kingsaul22.etxcenter.feature.stats.StatsScreen
 import com.kingsaul22.etxcenter.feature.teams.ManageTeamsScreen
+import com.kingsaul22.etxcenter.feature.teams.ManageMetadataScreen
 import com.kingsaul22.etxcenter.feature.teams.TeamsScreen
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
@@ -39,6 +40,9 @@ fun AppNavHost(
                 },
                 onManagePlayersClick = {
                     navController.navigate(ManagePlayersDestination)
+                },
+                onManageMetadataClick = {
+                    navController.navigate(ManageMetadataDestination)
                 }
             )
         }
@@ -79,6 +83,12 @@ fun AppNavHost(
 
         composable<ManagePlayersDestination> {
             ManagePlayersScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<ManageMetadataDestination> {
+            ManageMetadataScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }
