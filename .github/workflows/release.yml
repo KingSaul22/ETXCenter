@@ -22,9 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: gradle/actions/wrapper-validation@v4
+      - uses: gradle/actions/wrapper-validation@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}" > androidApp/google-services.json
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Update version
         run: |
@@ -53,14 +53,14 @@ jobs:
         run: ./gradlew :androidApp:bundleRelease
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-apk
           path: androidApp/build/outputs/apk/release/*.apk
           if-no-files-found: error
 
       - name: Upload AAB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-aab
           path: androidApp/build/outputs/bundle/release/*.aab
@@ -72,9 +72,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: gradle/actions/wrapper-validation@v4
+      - uses: gradle/actions/wrapper-validation@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -85,7 +85,7 @@ jobs:
           VERSION="${VERSION#v}"
           echo "RELEASE_VERSION=${VERSION}" >> "$GITHUB_ENV"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Update package version
         run: |
@@ -95,7 +95,7 @@ jobs:
         run: ./gradlew :desktopApp:createDistributable
 
       - name: Upload DMG
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: desktop-macos-dmg
           path: desktopApp/build/compose/binaries/main/dmg/*.dmg
@@ -107,9 +107,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: gradle/actions/wrapper-validation@v4
+      - uses: gradle/actions/wrapper-validation@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -119,7 +119,7 @@ jobs:
           $version = "${{ inputs.version || github.ref_name }}" -replace '^v', ''
           echo "RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Update package version
         run: |
@@ -129,7 +129,7 @@ jobs:
         run: ./gradlew :desktopApp:createDistributable
 
       - name: Upload MSI
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: desktop-windows-msi
           path: desktopApp/build/compose/binaries/main/msi/*.msi
@@ -141,9 +141,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: gradle/actions/wrapper-validation@v4
+      - uses: gradle/actions/wrapper-validation@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
@@ -154,7 +154,7 @@ jobs:
           VERSION="${VERSION#v}"
           echo "RELEASE_VERSION=${VERSION}" >> "$GITHUB_ENV"
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Update package version
         run: |
@@ -164,7 +164,7 @@ jobs:
         run: ./gradlew :desktopApp:createDistributable
 
       - name: Upload DEB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: desktop-linux-deb
           path: desktopApp/build/compose/binaries/main/deb/*.deb
@@ -179,12 +179,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: ${{ github.ref_name }}
           files: artifacts/**/*
