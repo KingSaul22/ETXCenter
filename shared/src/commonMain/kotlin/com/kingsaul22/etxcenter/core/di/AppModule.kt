@@ -1,5 +1,6 @@
 package com.kingsaul22.etxcenter.core.di
 
+import com.kingsaul22.etxcenter.data.repository.MetadataRepositoryImpl
 import com.kingsaul22.etxcenter.data.repository.AuthRepositoryImpl
 import com.kingsaul22.etxcenter.data.repository.LiveRepositoryImpl
 import com.kingsaul22.etxcenter.data.repository.PlayerRepositoryImpl
@@ -9,6 +10,7 @@ import com.kingsaul22.etxcenter.domain.repository.IAuthRepository
 import com.kingsaul22.etxcenter.domain.repository.ILiveRepository
 import com.kingsaul22.etxcenter.domain.repository.IPlayerRepository
 import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
+import com.kingsaul22.etxcenter.domain.repository.IMetadataRepository
 import com.kingsaul22.etxcenter.domain.repository.IMatchRepository
 import com.kingsaul22.etxcenter.feature.auth.AuthViewModel
 import com.kingsaul22.etxcenter.feature.home.HomeViewModel
@@ -19,6 +21,7 @@ import com.kingsaul22.etxcenter.feature.stats.StatsViewModel
 import com.kingsaul22.etxcenter.feature.stats.MatchDetailsViewModel
 import com.kingsaul22.etxcenter.feature.teams.TeamsViewModel
 import com.kingsaul22.etxcenter.feature.teams.ManageTeamsViewModel
+import com.kingsaul22.etxcenter.feature.teams.ManageMetadataViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import dev.gitlive.firebase.database.database
@@ -36,6 +39,7 @@ val appModule = module {
     single<ILiveRepository> { LiveRepositoryImpl(get()) }
     single<IPlayerRepository> { PlayerRepositoryImpl(get()) }
     single<ITeamRepository> { TeamRepositoryImpl(get()) }
+    single<IMetadataRepository> { MetadataRepositoryImpl(get()) }
     single<IMatchRepository> { MatchRepositoryImpl(get()) }
 
     // Register the ViewModel (using modern Koin DSL)
@@ -45,6 +49,7 @@ val appModule = module {
     factory { StatsViewModel(get(), get()) }
     factory { TeamsViewModel(get()) }
     factory { ManageTeamsViewModel(get(), get()) }
+    factory { ManageMetadataViewModel(get()) }
     factory { ManagePlayersViewModel(get(), get()) }
     factory { PlayersViewModel(get()) }
     factory { params -> MatchDetailsViewModel(matchId = params.get(), get(), get()) }
