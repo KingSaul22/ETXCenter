@@ -9,5 +9,6 @@ data class LiveState(
     val scoreBlue: Int,
     val scoreOrange: Int,
     val timeRemainingSeconds: Long,
-    val winner: String
+    val winner: String,
+    val playerTelemetry: List<PlayerTelemetry>,
 )
