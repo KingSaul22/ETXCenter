@@ -28,6 +28,16 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Icon
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +58,7 @@ import org.koin.compose.koinInject
 private val BlueTeam = Color(0xFF1565C0)
 private val OrangeTeam = Color(0xFFE65100)
 private val ClockWarning = Color(0xFFFFA000)
+private val TwitchPurple = Color(0xFF9146FF)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +67,7 @@ fun LiveScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current
+    var isStreamVisible by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -79,15 +91,34 @@ fun LiveScreen(
             }
 
             LiveUiState.NoActiveMatch -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(screenPadding),
-                    contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(screenPadding)
+                        .padding(horizontal = 16.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = strings.noActiveMatch,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    TwitchStreamCard(
+                        channel = "etxclan",
+                        isExpanded = isStreamVisible,
+                        onToggleExpanded = { isStreamVisible = !isStreamVisible }
                     )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = strings.noActiveMatch,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
 
@@ -101,6 +132,12 @@ fun LiveScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    TwitchStreamCard(
+                        channel = "etxcenter",
+                        isExpanded = isStreamVisible,
+                        onToggleExpanded = { isStreamVisible = !isStreamVisible }
+                    )
 
                     MatchHeader(
                         arena = state.arena,
@@ -484,6 +521,7 @@ private fun LiveEvent.displayText(strings: AppStrings): String = when (type) {
         val postSpeed = data["post_hit_speed"] ?: "0"
         "${strings.ballHit} \u2014 velocidad: $preSpeed \u2192 $postSpeed kph"
     }
+
     else -> type
 }
 
@@ -493,4 +531,64 @@ private fun LiveEvent.formattedTime(): String {
     val mm = dt.minute.toString().padStart(2, '0')
     val ss = dt.second.toString().padStart(2, '0')
     return "$hh:$mm:$ss"
+}
+
+@Composable
+private fun TwitchStreamCard(
+    channel: String,
+    isExpanded: Boolean,
+    onToggleExpanded: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Tv,
+                    contentDescription = "Twitch icon",
+                    tint = TwitchPurple
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "ETX Twitch Broadcast",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = if (isExpanded) "Live video player loaded" else "Tap to expand and watch stream",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                }
+                IconButton(onClick = onToggleExpanded) {
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = if (isExpanded) "Hide Stream" else "Show Stream"
+                    )
+                }
+            }
+
+            if (isExpanded) {
+                TwitchPlayer(
+                    channel = channel,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                        .padding(bottom = 12.dp, start = 12.dp, end = 12.dp)
+                        .clip(MaterialTheme.shapes.medium)
+                )
+            }
+        }
+    }
 }
