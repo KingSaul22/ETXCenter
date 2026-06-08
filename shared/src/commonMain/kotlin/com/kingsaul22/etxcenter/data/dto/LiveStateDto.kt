@@ -13,4 +13,5 @@ data class LiveStateDto(
     @SerialName("score") val score: ScoreDto = ScoreDto(),
     @SerialName("time_remaining_seconds") val timeRemainingSeconds: Long = 0,
     @SerialName("winner") val winner: String = "",
+    @SerialName("player_telemetry") val playerTelemetry: Map<String, PlayerTelemetryDto> = emptyMap(),
 )
