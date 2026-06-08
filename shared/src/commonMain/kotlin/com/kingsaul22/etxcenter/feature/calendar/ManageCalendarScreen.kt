@@ -1,6 +1,5 @@
 package com.kingsaul22.etxcenter.feature.calendar
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.kingsaul22.etxcenter.core.ui.components.DateTimePickerField
+import com.kingsaul22.etxcenter.core.ui.components.SearchableTeamDropdown
 import com.kingsaul22.etxcenter.domain.model.CalendarEntry
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
@@ -38,22 +39,28 @@ fun ManageCalendarScreen(
     var entryToEdit by remember { mutableStateOf<CalendarEntry?>(null) }
     var entryToDelete by remember { mutableStateOf<CalendarEntry?>(null) }
 
-    // Forms fields
+    // Form fields — date and time are split for picker integration
     var blueTeamId by remember { mutableStateOf("") }
     var orangeTeamId by remember { mutableStateOf("") }
-    var startTimeInput by remember { mutableStateOf("") }
-    var endTimeInput by remember { mutableStateOf("") }
+    var startDate by remember { mutableStateOf("") }
+    var startTime by remember { mutableStateOf("") }
+    var endDate by remember { mutableStateOf("") }
+    var endTime by remember { mutableStateOf("") }
 
     var showError by remember { mutableStateOf<String?>(null) }
 
-    // Form initialization helper
+    // Form initialization helper — populate fields when editing
     LaunchedEffect(entryToEdit) {
         showError = null
         entryToEdit?.let { entry ->
             blueTeamId = entry.blueTeamId
             orangeTeamId = entry.orangeTeamId
-            startTimeInput = formatEpochToDateTime(entry.startTime.epochSeconds)
-            endTimeInput = formatEpochToDateTime(entry.endTime.epochSeconds)
+            val (sd, st) = splitEpochToDateAndTime(entry.startTime.epochSeconds)
+            val (ed, et) = splitEpochToDateAndTime(entry.endTime.epochSeconds)
+            startDate = sd
+            startTime = st
+            endDate = ed
+            endTime = et
         }
     }
 
@@ -80,8 +87,10 @@ fun ManageCalendarScreen(
                 onClick = {
                     blueTeamId = ""
                     orangeTeamId = ""
-                    startTimeInput = ""
-                    endTimeInput = ""
+                    startDate = ""
+                    startTime = ""
+                    endDate = ""
+                    endTime = ""
                     showError = null
                     showCreateDialog = true
                 }
@@ -220,236 +229,106 @@ fun ManageCalendarScreen(
         }
     }
 
+    // =============================================
     // Create Entry Dialog
+    // =============================================
     if (showCreateDialog) {
-        AlertDialog(
-            onDismissRequest = { showCreateDialog = false },
-            title = { Text("Create Calendar Entry") },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedTextField(
-                        value = startTimeInput,
-                        onValueChange = { startTimeInput = it },
-                        label = { Text("Start Date & Time (YYYY-MM-DD HH:mm)") },
-                        placeholder = { Text("e.g. 2026-06-10 18:00") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    OutlinedTextField(
-                        value = endTimeInput,
-                        onValueChange = { endTimeInput = it },
-                        label = { Text("End Date & Time (YYYY-MM-DD HH:mm)") },
-                        placeholder = { Text("e.g. 2026-06-10 20:00") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    showError?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Select Blue Team", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        state.teams.forEach { team ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { blueTeamId = team.id }
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(selected = blueTeamId == team.id, onClick = { blueTeamId = team.id })
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(team.name)
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Select Orange Team", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        state.teams.forEach { team ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { orangeTeamId = team.id }
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(selected = orangeTeamId == team.id, onClick = { orangeTeamId = team.id })
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(team.name)
-                            }
-                        }
-                    }
+        CalendarEntryDialog(
+            title = "Create Calendar Entry",
+            startDate = startDate,
+            startTime = startTime,
+            endDate = endDate,
+            endTime = endTime,
+            onStartDateChange = { startDate = it },
+            onStartTimeChange = { startTime = it },
+            onEndDateChange = { endDate = it },
+            onEndTimeChange = { endTime = it },
+            blueTeamId = blueTeamId,
+            orangeTeamId = orangeTeamId,
+            onBlueTeamSelected = { blueTeamId = it },
+            onOrangeTeamSelected = { orangeTeamId = it },
+            teams = state.teams,
+            errorMessage = showError,
+            onConfirm = {
+                val start = parseDateTimeToEpoch("$startDate $startTime")
+                val end = parseDateTimeToEpoch("$endDate $endTime")
+                if (start == null || end == null) {
+                    showError = "Invalid Date-Time. Use YYYY-MM-DD for dates and HH:mm for times."
+                    return@CalendarEntryDialog
                 }
+                if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
+                    showError = "Please select both teams"
+                    return@CalendarEntryDialog
+                }
+                if (start > end) {
+                    showError = "Start time must be before End time"
+                    return@CalendarEntryDialog
+                }
+                viewModel.createCalendarEntry(
+                    blueTeamId = blueTeamId,
+                    orangeTeamId = orangeTeamId,
+                    startTime = start,
+                    endTime = end
+                )
+                showCreateDialog = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val start = parseDateTimeToEpoch(startTimeInput)
-                        val end = parseDateTimeToEpoch(endTimeInput)
-                        if (start == null || end == null) {
-                            showError = "Invalid Date-Time format. Use YYYY-MM-DD HH:mm"
-                            return@TextButton
-                        }
-                        if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
-                            showError = "Please select both teams"
-                            return@TextButton
-                        }
-                        if (start > end) {
-                            showError = "Start time must be before End time"
-                            return@TextButton
-                        }
-
-                        viewModel.createCalendarEntry(
-                            blueTeamId = blueTeamId,
-                            orangeTeamId = orangeTeamId,
-                            startTime = start,
-                            endTime = end
-                        )
-                        showCreateDialog = false
-                    }
-                ) {
-                    Text("Create")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCreateDialog = false }) {
-                    Text("Cancel")
-                }
-            }
+            confirmLabel = "Create",
+            onDismiss = { showCreateDialog = false }
         )
     }
 
+    // =============================================
     // Edit Entry Dialog
+    // =============================================
     entryToEdit?.let { entry ->
-        AlertDialog(
-            onDismissRequest = { entryToEdit = null },
-            title = { Text("Edit Calendar Entry") },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedTextField(
-                        value = startTimeInput,
-                        onValueChange = { startTimeInput = it },
-                        label = { Text("Start Date & Time (YYYY-MM-DD HH:mm)") },
-                        placeholder = { Text("e.g. 2026-06-10 18:00") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    OutlinedTextField(
-                        value = endTimeInput,
-                        onValueChange = { endTimeInput = it },
-                        label = { Text("End Date & Time (YYYY-MM-DD HH:mm)") },
-                        placeholder = { Text("e.g. 2026-06-10 20:00") },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    showError?.let {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Select Blue Team", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        state.teams.forEach { team ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { blueTeamId = team.id }
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(selected = blueTeamId == team.id, onClick = { blueTeamId = team.id })
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(team.name)
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Select Orange Team", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        state.teams.forEach { team ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { orangeTeamId = team.id }
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(selected = orangeTeamId == team.id, onClick = { orangeTeamId = team.id })
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(team.name)
-                            }
-                        }
-                    }
+        CalendarEntryDialog(
+            title = "Edit Calendar Entry",
+            startDate = startDate,
+            startTime = startTime,
+            endDate = endDate,
+            endTime = endTime,
+            onStartDateChange = { startDate = it },
+            onStartTimeChange = { startTime = it },
+            onEndDateChange = { endDate = it },
+            onEndTimeChange = { endTime = it },
+            blueTeamId = blueTeamId,
+            orangeTeamId = orangeTeamId,
+            onBlueTeamSelected = { blueTeamId = it },
+            onOrangeTeamSelected = { orangeTeamId = it },
+            teams = state.teams,
+            errorMessage = showError,
+            onConfirm = {
+                val start = parseDateTimeToEpoch("$startDate $startTime")
+                val end = parseDateTimeToEpoch("$endDate $endTime")
+                if (start == null || end == null) {
+                    showError = "Invalid Date-Time. Use YYYY-MM-DD for dates and HH:mm for times."
+                    return@CalendarEntryDialog
                 }
+                if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
+                    showError = "Please select both teams"
+                    return@CalendarEntryDialog
+                }
+                if (start > end) {
+                    showError = "Start time must be before End time"
+                    return@CalendarEntryDialog
+                }
+                viewModel.updateCalendarEntry(
+                    id = entry.id,
+                    blueTeamId = blueTeamId,
+                    orangeTeamId = orangeTeamId,
+                    startTime = start,
+                    endTime = end
+                )
+                entryToEdit = null
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val start = parseDateTimeToEpoch(startTimeInput)
-                        val end = parseDateTimeToEpoch(endTimeInput)
-                        if (start == null || end == null) {
-                            showError = "Invalid Date-Time format. Use YYYY-MM-DD HH:mm"
-                            return@TextButton
-                        }
-                        if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
-                            showError = "Please select both teams"
-                            return@TextButton
-                        }
-                        if (start > end) {
-                            showError = "Start time must be before End time"
-                            return@TextButton
-                        }
-
-                        viewModel.updateCalendarEntry(
-                            id = entry.id,
-                            blueTeamId = blueTeamId,
-                            orangeTeamId = orangeTeamId,
-                            startTime = start,
-                            endTime = end
-                        )
-                        entryToEdit = null
-                    }
-                ) {
-                    Text("Save")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { entryToEdit = null }) {
-                    Text("Cancel")
-                }
-            }
+            confirmLabel = "Save",
+            onDismiss = { entryToEdit = null }
         )
     }
 
+    // =============================================
     // Delete Entry Alert Dialog
+    // =============================================
     entryToDelete?.let { entry ->
         AlertDialog(
             onDismissRequest = { entryToDelete = null },
@@ -479,6 +358,115 @@ fun ManageCalendarScreen(
     }
 }
 
+// =============================================
+// Shared calendar-entry form dialog
+// =============================================
+
+@Composable
+private fun CalendarEntryDialog(
+    title: String,
+    startDate: String,
+    startTime: String,
+    endDate: String,
+    endTime: String,
+    onStartDateChange: (String) -> Unit,
+    onStartTimeChange: (String) -> Unit,
+    onEndDateChange: (String) -> Unit,
+    onEndTimeChange: (String) -> Unit,
+    blueTeamId: String,
+    orangeTeamId: String,
+    onBlueTeamSelected: (String) -> Unit,
+    onOrangeTeamSelected: (String) -> Unit,
+    teams: List<com.kingsaul22.etxcenter.domain.model.Team>,
+    errorMessage: String?,
+    onConfirm: () -> Unit,
+    confirmLabel: String,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // --- Start timestamp ---
+                Text(
+                    text = "Start",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                DateTimePickerField(
+                    dateValue = startDate,
+                    timeValue = startTime,
+                    onDateChange = onStartDateChange,
+                    onTimeChange = onStartTimeChange,
+                    label = "Start"
+                )
+
+                // --- End timestamp ---
+                Text(
+                    text = "End",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                DateTimePickerField(
+                    dateValue = endDate,
+                    timeValue = endTime,
+                    onDateChange = onEndDateChange,
+                    onTimeChange = onEndTimeChange,
+                    label = "End"
+                )
+
+                // --- Inline validation error ---
+                errorMessage?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // --- Blue team selector ---
+                SearchableTeamDropdown(
+                    teams = teams,
+                    selectedTeamId = blueTeamId,
+                    onTeamSelected = onBlueTeamSelected,
+                    label = "Blue Team"
+                )
+
+                // --- Orange team selector ---
+                SearchableTeamDropdown(
+                    teams = teams,
+                    selectedTeamId = orangeTeamId,
+                    onTeamSelected = onOrangeTeamSelected,
+                    label = "Orange Team"
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(confirmLabel)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+// =============================================
+// Date-time utilities
+// =============================================
+
 private fun parseDateTimeToEpoch(input: String): Long? {
     return try {
         val formatted = input.trim().replace(" ", "T")
@@ -495,12 +483,28 @@ private fun formatEpochToDateTime(epochSeconds: Long): String {
         val instant = Instant.fromEpochSeconds(epochSeconds)
         val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
         val year = localDateTime.year
-        val month = localDateTime.monthNumber.toString().padStart(2, '0')
-        val day = localDateTime.dayOfMonth.toString().padStart(2, '0')
+        val month = localDateTime.month.toString().padStart(2, '0')
+        val day = localDateTime.day.toString().padStart(2, '0')
         val hour = localDateTime.hour.toString().padStart(2, '0')
         val minute = localDateTime.minute.toString().padStart(2, '0')
         "$year-$month-$day $hour:$minute"
     } catch (e: Exception) {
         ""
+    }
+}
+
+/**
+ * Splits an epoch-seconds value into a date part ("YYYY-MM-DD") and
+ * a time part ("HH:mm") for populating the split picker fields.
+ */
+private fun splitEpochToDateAndTime(epochSeconds: Long): Pair<String, String> {
+    return try {
+        val instant = Instant.fromEpochSeconds(epochSeconds)
+        val ldt = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+        val date = "${ldt.year}-${ldt.month.toString().padStart(2, '0')}-${ldt.day.toString().padStart(2, '0')}"
+        val time = "${ldt.hour.toString().padStart(2, '0')}:${ldt.minute.toString().padStart(2, '0')}"
+        date to time
+    } catch (e: Exception) {
+        "" to ""
     }
 }
