@@ -1,5 +1,8 @@
 package com.kingsaul22.etxcenter.feature.teams
 
-data class TeamsUiState(
-    val isLoading: Boolean = false
-)
+sealed interface TeamsUiState {
+    data object Loading : TeamsUiState
+    data class Success(
+        val teams: List<TeamProfile>
+    ) : TeamsUiState
+}
