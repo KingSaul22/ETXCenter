@@ -38,7 +38,7 @@ val appModule = module {
     factory { LiveViewModel(get()) }
     factory { StatsViewModel() }
     factory { TeamsViewModel() }
-    factory { PlayersViewModel() }
+    factory { PlayersViewModel(get()) }
 }
 
 fun initKoin(config: KoinAppDeclaration? = null) {
