@@ -28,7 +28,8 @@ class LiveViewModel(
                 scoreOrange = liveState.scoreOrange,
                 timeRemainingSeconds = liveState.timeRemainingSeconds,
                 winner = liveState.winner,
-                events = events
+                events = events,
+                playerTelemetry = liveState.playerTelemetry
             )
         }
     }.stateIn(
