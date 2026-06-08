@@ -40,15 +40,6 @@ fun ManagePlayersScreen(
     var playerIdInput by remember { mutableStateOf("") }
     var displayNameInput by remember { mutableStateOf("") }
     var selectedTeamId by remember { mutableStateOf<String?>(null) }
-    
-    val addPlayerDesc = if (strings.languageCode == "es") "Añadir Jugador" else "Add Player"
-    val emptyPlayersMsg = if (strings.languageCode == "es") "No hay jugadores disponibles. Toca + para agregar uno." else "No players available. Tap + to add one."
-    val unassignedMsg = if (strings.languageCode == "es") "Sin asignar / Sin equipo" else "Unassigned / No Team"
-    val createPlayerTitle = if (strings.languageCode == "es") "Crear Nuevo Jugador" else "Create New Player"
-    val platformIdLabel = if (strings.languageCode == "es") "ID de Plataforma (ej. Epic|hash|0)" else "Platform ID (e.g. Epic|hash|0)"
-    val selectTeamLabel = if (strings.languageCode == "es") "Seleccionar Asignación de Equipo" else "Select Team Assignment"
-    val editPlayerTitle = if (strings.languageCode == "es") "Editar Jugador" else "Edit Player"
-    val playerIdReadOnly = if (strings.languageCode == "es") "ID del Jugador (Solo lectura)" else "Player ID (Read-only)"
 
     Scaffold(
         topBar = {
@@ -77,7 +68,7 @@ fun ManagePlayersScreen(
                     showCreateDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = addPlayerDesc)
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addPlayerDesc)
             }
         }
     ) { screenPadding ->
@@ -94,7 +85,7 @@ fun ManagePlayersScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = emptyPlayersMsg,
+                        text = strings.emptyPlayersMsg,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -156,7 +147,7 @@ fun ManagePlayersScreen(
                                             shape = MaterialTheme.shapes.extraSmall
                                         ) {
                                             Text(
-                                                text = unassignedMsg,
+                                                text = strings.unassignedMsg,
                                                 style = MaterialTheme.typography.labelSmall,
                                                 color = MaterialTheme.colorScheme.onErrorContainer,
                                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
@@ -201,7 +192,7 @@ fun ManagePlayersScreen(
     if (showCreateDialog) {
         AlertDialog(
             onDismissRequest = { showCreateDialog = false },
-            title = { Text(createPlayerTitle) },
+            title = { Text(strings.createPlayerTitle) },
             text = {
                 Column(
                     modifier = Modifier
@@ -212,7 +203,7 @@ fun ManagePlayersScreen(
                     OutlinedTextField(
                         value = playerIdInput,
                         onValueChange = { playerIdInput = it },
-                        label = { Text(platformIdLabel) },
+                        label = { Text(strings.platformIdLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -225,7 +216,7 @@ fun ManagePlayersScreen(
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(strings.selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
 
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(
@@ -237,7 +228,7 @@ fun ManagePlayersScreen(
                         ) {
                             RadioButton(selected = selectedTeamId == null, onClick = { selectedTeamId = null })
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(unassignedMsg)
+                            Text(strings.unassignedMsg)
                         }
                         state.teams.forEach { team ->
                             Row(
@@ -279,7 +270,7 @@ fun ManagePlayersScreen(
     playerToEdit?.let { player ->
         AlertDialog(
             onDismissRequest = { playerToEdit = null },
-            title = { Text(editPlayerTitle) },
+            title = { Text(strings.editPlayerTitle) },
             text = {
                 Column(
                     modifier = Modifier
@@ -290,7 +281,7 @@ fun ManagePlayersScreen(
                     OutlinedTextField(
                         value = player.id,
                         onValueChange = {},
-                        label = { Text(playerIdReadOnly) },
+                        label = { Text(strings.playerIdReadOnlyLabel) },
                         enabled = false,
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -304,7 +295,7 @@ fun ManagePlayersScreen(
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                    Text(strings.selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
 
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Row(
@@ -316,7 +307,7 @@ fun ManagePlayersScreen(
                         ) {
                             RadioButton(selected = selectedTeamId == null, onClick = { selectedTeamId = null })
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(unassignedMsg)
+                            Text(strings.unassignedMsg)
                         }
                         state.teams.forEach { team ->
                             Row(
@@ -356,7 +347,7 @@ fun ManagePlayersScreen(
 
     // Delete Player Confirmation Dialog
     playerToDelete?.let { player ->
-        val confirmMsg = if (strings.languageCode == "es") "¿Estás seguro de que deseas eliminar al jugador \"${player.displayName}\"? Esto lo desasignará de su equipo y eliminará sus estadísticas acumuladas. Esta acción no se puede deshacer." else "Are you sure you want to delete player \"${player.displayName}\"? This will unassign them from their team roster and delete their cumulative stats. This action cannot be undone."
+        val confirmMsg = strings.deletePlayerConfirmMsgDynamic.replace("{name}", player.displayName)
         AlertDialog(
             onDismissRequest = { playerToDelete = null },
             title = { Text(strings.deletePlayerConfirmTitle) },

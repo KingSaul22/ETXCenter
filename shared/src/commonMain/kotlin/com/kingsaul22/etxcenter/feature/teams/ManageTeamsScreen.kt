@@ -45,12 +45,6 @@ fun ManageTeamsScreen(
         selectedPlayerIds.addAll(rosterPlayers)
     }
 
-    val emptyMsg = if (strings.languageCode == "es") "No hay equipos disponibles. Toca + para agregar uno." else "No teams available. Tap + to add one."
-    val addTeamDesc = if (strings.languageCode == "es") "Añadir Equipo" else "Add Team"
-    val noPlayersMsg = if (strings.languageCode == "es") "No hay jugadores disponibles para asignar." else "No players available to assign."
-    val currentOnMsg = if (strings.languageCode == "es") "Actualmente en: " else "Currently on: "
-    val assignedMsg = if (strings.languageCode == "es") "Asignado a este equipo" else "Assigned to this team"
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,7 +70,7 @@ fun ManageTeamsScreen(
                     showCreateDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = addTeamDesc)
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addTeamDesc)
             }
         }
     ) { screenPadding ->
@@ -91,7 +85,7 @@ fun ManageTeamsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = emptyMsg,
+                        text = strings.emptyTeamsMsg,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -179,7 +173,7 @@ fun ManageTeamsScreen(
     }
 
     teamToDelete?.let { team ->
-        val confirmMsg = if (strings.languageCode == "es") "¿Estás seguro de que deseas eliminar el equipo \"${team.name}\"? Esta acción no se puede deshacer." else "Are you sure you want to delete team \"${team.name}\"? This action cannot be undone."
+        val confirmMsg = strings.deleteTeamConfirmMsgDynamic.replace("{name}", team.name)
         AlertDialog(
             onDismissRequest = { teamToDelete = null },
             title = { Text(strings.deleteTeamConfirmTitle) },
@@ -213,7 +207,7 @@ fun ManageTeamsScreen(
             title = { Text("${strings.editRosterTitle}: ${team.name}") },
             text = {
                 if (allPlayers.isEmpty()) {
-                    Text(noPlayersMsg)
+                    Text(strings.noPlayersAvailableMsg)
                 } else {
                     Column(
                         modifier = Modifier
@@ -256,13 +250,13 @@ fun ManageTeamsScreen(
                                     )
                                     if (player.teamId != null && player.teamId != team.id) {
                                         Text(
-                                            text = "$currentOnMsg${player.teamId}",
+                                                text = "${strings.currentlyOnMsg}${player.teamId}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error
                                         )
                                     } else if (player.teamId == team.id) {
                                         Text(
-                                            text = assignedMsg,
+                                                text = strings.assignedToTeamMsg,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.primary
                                         )

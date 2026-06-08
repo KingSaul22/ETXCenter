@@ -137,6 +137,25 @@ sealed class AppStrings(
     val valueLabel: String,
     val numericLabel: String,
     val deleteMetadataConfirmMsg: String,
+
+    // Manage Players — extra
+    val addPlayerDesc: String,
+    val emptyPlayersMsg: String,
+    val unassignedMsg: String,
+    val createPlayerTitle: String,
+    val platformIdLabel: String,
+    val selectTeamLabel: String,
+    val editPlayerTitle: String,
+    val playerIdReadOnlyLabel: String,
+    val deletePlayerConfirmMsgDynamic: String,
+
+    // Manage Teams — extra
+    val emptyTeamsMsg: String,
+    val addTeamDesc: String,
+    val noPlayersAvailableMsg: String,
+    val currentlyOnMsg: String,
+    val assignedToTeamMsg: String,
+    val deleteTeamConfirmMsgDynamic: String,
     // General
     val loading: String,
     val errorPrefix: String,
