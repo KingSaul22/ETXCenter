@@ -1,5 +1,6 @@
 package com.kingsaul22.etxcenter.feature.stats
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import org.koin.compose.koinInject
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(
+    onMatchClick: (String) -> Unit,
     viewModel: StatsViewModel = koinInject()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -74,7 +76,10 @@ fun StatsScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(uiState.matches) { match ->
-                                MatchCard(match = match)
+                                MatchCard(
+                                    match = match,
+                                    onClick = { onMatchClick(match.matchId) }
+                                )
                             }
                         }
                     }
@@ -85,12 +90,17 @@ fun StatsScreen(
 }
 
 @Composable
-fun MatchCard(match: MatchProfile) {
+fun MatchCard(
+    match: MatchProfile,
+    onClick: () -> Unit
+) {
     val isBlueWinner = match.blueScore > match.orangeScore
     val isOrangeWinner = match.orangeScore > match.blueScore
 
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
