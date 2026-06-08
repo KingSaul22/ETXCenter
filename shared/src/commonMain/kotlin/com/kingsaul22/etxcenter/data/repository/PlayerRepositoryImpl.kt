@@ -1,8 +1,10 @@
 package com.kingsaul22.etxcenter.data.repository
 
 import com.kingsaul22.etxcenter.data.dto.PlayerDto
+import com.kingsaul22.etxcenter.data.dto.PlayerStatsDto
 import com.kingsaul22.etxcenter.data.mapper.toDomain
 import com.kingsaul22.etxcenter.domain.model.Player
+import com.kingsaul22.etxcenter.domain.model.PlayerStats
 import com.kingsaul22.etxcenter.domain.repository.IPlayerRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +30,21 @@ class PlayerRepositoryImpl(
                 } catch (e: Exception) {
                     e.printStackTrace()
                     null // Si un jugador falla, lo ignoramos y seguimos
+                }
+            }
+        }
+    }
+
+    override fun getPlayerStatsFlow(): Flow<List<PlayerStats>> {
+        return database.reference("stats_cumulative").valueEvents.map { snapshot ->
+            if (!snapshot.exists) return@map emptyList()
+            snapshot.children.mapNotNull { child ->
+                try {
+                    val id = child.key ?: return@mapNotNull null
+                    child.value<PlayerStatsDto>().toDomain(id)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    null
                 }
             }
         }
