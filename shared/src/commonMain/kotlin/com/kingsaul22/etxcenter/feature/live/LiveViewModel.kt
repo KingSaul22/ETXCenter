@@ -19,9 +19,15 @@ class LiveViewModel(
         when (liveState) {
             null -> LiveUiState.NoActiveMatch
             else -> LiveUiState.ActiveMatch(
+                arena = liveState.arena,
+                hasWinner = liveState.hasWinner,
+                isActive = liveState.isActive,
+                isOvertime = liveState.isOvertime,
+                isReplay = liveState.isReplay,
                 scoreBlue = liveState.scoreBlue,
                 scoreOrange = liveState.scoreOrange,
                 timeRemainingSeconds = liveState.timeRemainingSeconds,
+                winner = liveState.winner,
                 events = events
             )
         }
