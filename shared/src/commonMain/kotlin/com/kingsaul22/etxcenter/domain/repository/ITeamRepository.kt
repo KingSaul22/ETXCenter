@@ -8,4 +8,8 @@ interface ITeamRepository {
     fun getTeamsFlow(): Flow<List<Team>>
     
     fun getTeamStatsFlow(): Flow<List<TeamStats>>
+
+    suspend fun createTeam(name: String, logoUrl: String?): Result<Unit>
+
+    suspend fun deleteTeam(teamId: String): Result<Unit>
 }

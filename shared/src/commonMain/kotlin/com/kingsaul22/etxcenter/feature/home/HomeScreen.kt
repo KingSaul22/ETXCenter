@@ -39,6 +39,7 @@ import org.koin.compose.koinInject
 @Composable
 fun HomeScreen(
     onAdminClick: () -> Unit,
+    onManageTeamsClick: () -> Unit,
     viewModel: HomeViewModel = koinInject()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -101,85 +102,132 @@ fun HomeScreen(
                 }
             }
 
-            Text(
-                text = "Welcome back!",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Text(
-                text = "Here's what's happening with your teams.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                StatCard(
-                    label = "Teams",
-                    value = state.teamCount.toString(),
-                    iconLetter = "T",
-                    modifier = Modifier.weight(1f)
+            if (state.isAdmin) {
+                // Admin specific layout
+                Text(
+                    text = "Welcome back, Admin!",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
                 )
-                StatCard(
-                    label = "Players",
-                    value = state.playerCount.toString(),
-                    iconLetter = "P",
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    label = "Events",
-                    value = state.activeEventsCount.toString(),
-                    iconLetter = "E",
-                    modifier = Modifier.weight(1f)
-                )
-            }
 
-            Text(
-                text = "Quick Actions",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                QuickActionCard(
-                    label = "New Team",
-                    modifier = Modifier.weight(1f)
+                Text(
+                    text = "Here's the current database status.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                QuickActionCard(
-                    label = "Manage Roster",
-                    modifier = Modifier.weight(1f)
-                )
-            }
 
-            Text(
-                text = "Recent Activity",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = "No recent activity",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        label = "Teams",
+                        value = state.teamCount.toString(),
+                        iconLetter = "T",
+                        modifier = Modifier.weight(1f)
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Activity from your teams will appear here.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    StatCard(
+                        label = "Players",
+                        value = state.playerCount.toString(),
+                        iconLetter = "P",
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        label = "Events",
+                        value = state.activeEventsCount.toString(),
+                        iconLetter = "E",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Text(
+                    text = "Quick Actions",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    QuickActionCard(
+                        label = "Manage Teams",
+                        onClick = onManageTeamsClick,
+                        modifier = Modifier.weight(1f)
+                    )
+                    QuickActionCard(
+                        label = "Manage Players",
+                        onClick = { /* TODO */ },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    QuickActionCard(
+                        label = "Edit Metadata",
+                        onClick = { /* TODO */ },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            } else {
+                // Fan/Non-Admin layout
+                Text(
+                    text = "Welcome to ETX League!",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "Track your favorite teams and live scores in real-time.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "ETX League Hub",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "SAVETX connects Rocket League players, statistics, and live updates directly to the cloud. Explore teams, match profiles, and follow live feeds from the dashboard.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+
+                Text(
+                    text = "Competition Resume",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    StatCard(
+                        label = "Total Teams",
+                        value = state.teamCount.toString(),
+                        iconLetter = "T",
+                        modifier = Modifier.weight(1f)
+                    )
+                    StatCard(
+                        label = "Total Players",
+                        value = state.playerCount.toString(),
+                        iconLetter = "P",
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }

@@ -67,9 +67,11 @@ fun StatCard(
 @Composable
 fun QuickActionCard(
     label: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
+        onClick = onClick,
         modifier = modifier,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
