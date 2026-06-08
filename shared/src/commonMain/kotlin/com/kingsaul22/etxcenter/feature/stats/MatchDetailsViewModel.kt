@@ -57,6 +57,8 @@ class MatchDetailsViewModel(
                 formattedDate = formattedDate,
                 blueTeamName = blueName,
                 orangeTeamName = orangeName,
+                blueTeamLogoUrl = blueTeam?.logoUrl,
+                orangeTeamLogoUrl = orangeTeam?.logoUrl,
                 blueScore = match.blueScore,
                 orangeScore = match.orangeScore,
                 blueShots = match.blueShots,

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.kingsaul22.etxcenter.core.ui.components.TeamLogo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,15 +128,28 @@ fun MatchDetailsScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    // Blue Team Name
-                                    Text(
-                                        text = uiState.blueTeamName,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
+                                    // Blue Team
+                                    Column(
                                         modifier = Modifier.weight(1f),
-                                        textAlign = TextAlign.Start
-                                    )
-                                    
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        TeamLogo(
+                                            logoUrl = uiState.blueTeamLogoUrl,
+                                            contentDescription = uiState.blueTeamName,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape)
+                                        )
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Text(
+                                            text = uiState.blueTeamName,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 2
+                                        )
+                                    }
+
                                     // Score
                                     Text(
                                         text = "${uiState.blueScore} - ${uiState.orangeScore}",
@@ -143,15 +158,28 @@ fun MatchDetailsScreen(
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.padding(horizontal = 16.dp)
                                     )
-                                    
-                                    // Orange Team Name
-                                    Text(
-                                        text = uiState.orangeTeamName,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
+
+                                    // Orange Team
+                                    Column(
                                         modifier = Modifier.weight(1f),
-                                        textAlign = TextAlign.End
-                                    )
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        TeamLogo(
+                                            logoUrl = uiState.orangeTeamLogoUrl,
+                                            contentDescription = uiState.orangeTeamName,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape)
+                                        )
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Text(
+                                            text = uiState.orangeTeamName,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            textAlign = TextAlign.Center,
+                                            maxLines = 2
+                                        )
+                                    }
                                 }
                             }
                         }
