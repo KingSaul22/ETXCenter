@@ -1,12 +1,44 @@
 package com.kingsaul22.etxcenter.feature.teams
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.lifecycle.viewModelScope
+import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
-class TeamsViewModel : ViewModel() {
+class TeamsViewModel(
+    private val teamRepository: ITeamRepository
+) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(TeamsUiState())
-    val uiState: StateFlow<TeamsUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<TeamsUiState> = combine(
+        teamRepository.getTeamsFlow(),
+        teamRepository.getTeamStatsFlow()
+    ) { teams, stats ->
+        val profiles = teams.map { team ->
+            val stat = stats.find { it.teamId == team.id }
+            val matchesPlayed = stat?.matchesPlayed ?: 0
+            val wins = stat?.wins ?: 0
+            val winRate = if (matchesPlayed > 0) (wins * 100 / matchesPlayed) else 0
+
+            TeamProfile(
+                teamId = team.id,
+                name = team.name,
+                logoUrl = team.logoUrl,
+                matchesPlayed = matchesPlayed,
+                wins = wins,
+                losses = stat?.losses ?: 0,
+                goalsFor = stat?.goalsFor ?: 0,
+                goalsAgainst = stat?.goalsAgainst ?: 0,
+                demos = stat?.demos ?: 0,
+                winRatePercentage = winRate
+            )
+        }
+        TeamsUiState.Success(teams = profiles)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = TeamsUiState.Loading
+    )
 }
