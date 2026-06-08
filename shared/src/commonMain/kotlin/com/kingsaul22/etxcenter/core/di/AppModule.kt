@@ -6,12 +6,14 @@ import com.kingsaul22.etxcenter.data.repository.LiveRepositoryImpl
 import com.kingsaul22.etxcenter.data.repository.PlayerRepositoryImpl
 import com.kingsaul22.etxcenter.data.repository.TeamRepositoryImpl
 import com.kingsaul22.etxcenter.data.repository.MatchRepositoryImpl
+import com.kingsaul22.etxcenter.data.repository.CalendarRepositoryImpl
 import com.kingsaul22.etxcenter.domain.repository.IAuthRepository
 import com.kingsaul22.etxcenter.domain.repository.ILiveRepository
 import com.kingsaul22.etxcenter.domain.repository.IPlayerRepository
 import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
 import com.kingsaul22.etxcenter.domain.repository.IMetadataRepository
 import com.kingsaul22.etxcenter.domain.repository.IMatchRepository
+import com.kingsaul22.etxcenter.domain.repository.ICalendarRepository
 import com.kingsaul22.etxcenter.feature.auth.AuthViewModel
 import com.kingsaul22.etxcenter.feature.home.HomeViewModel
 import com.kingsaul22.etxcenter.feature.live.LiveViewModel
@@ -41,6 +43,7 @@ val appModule = module {
     single<ITeamRepository> { TeamRepositoryImpl(get()) }
     single<IMetadataRepository> { MetadataRepositoryImpl(get()) }
     single<IMatchRepository> { MatchRepositoryImpl(get()) }
+    single<ICalendarRepository> { CalendarRepositoryImpl(get()) }
 
     // Register the ViewModel (using modern Koin DSL)
     factory { AuthViewModel(get()) }
