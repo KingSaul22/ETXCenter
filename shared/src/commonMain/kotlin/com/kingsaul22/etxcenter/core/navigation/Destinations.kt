@@ -45,3 +45,7 @@ data class MatchDetailsDestination(val matchId: String)
 
 @Serializable
 data object AdminLoginDestination
+
+@Serializable
+data object ManageTeamsDestination
+
