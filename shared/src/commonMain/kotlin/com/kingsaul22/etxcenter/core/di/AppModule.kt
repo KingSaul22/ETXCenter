@@ -30,7 +30,7 @@ val appModule = module {
     single { Firebase.database }
 
     // Bind the Interface to the Implementation
-    single<IAuthRepository> { AuthRepositoryImpl(get()) }
+    single<IAuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<ILiveRepository> { LiveRepositoryImpl(get()) }
     single<IPlayerRepository> { PlayerRepositoryImpl(get()) }
     single<ITeamRepository> { TeamRepositoryImpl(get()) }
@@ -38,7 +38,7 @@ val appModule = module {
 
     // Register the ViewModel (using modern Koin DSL)
     factory { AuthViewModel(get()) }
-    factory { HomeViewModel(get(), get()) }
+    factory { HomeViewModel(get(), get(), get()) }
     factory { LiveViewModel(get()) }
     factory { StatsViewModel(get(), get()) }
     factory { TeamsViewModel(get()) }

@@ -5,5 +5,6 @@ data class HomeUiState(
     val teamCount: Int = 0,
     val playerCount: Int = 0,
     val activeEventsCount: Int = 0,
+    val isAdmin: Boolean = false,
     val errorMessage: String? = null
 )

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kingsaul22.etxcenter.domain.repository.AuthResult
 import com.kingsaul22.etxcenter.domain.repository.IAuthRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,22 +16,27 @@ class AuthViewModel(
 
     private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Loading)
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+    private var authJob: Job? = null
 
     init {
         authenticate()
     }
 
     fun authenticate() {
+        authJob?.cancel()
         _uiState.value = AuthUiState.Loading
-        viewModelScope.launch {
+        authJob = viewModelScope.launch {
             when (val result = authRepository.signInSilently()) {
                 is AuthResult.Success -> {
-                    _uiState.value = AuthUiState.Authenticated
+                    authRepository.getIsAdminFlow().collect { isAdmin ->
+                        _uiState.value = AuthUiState.Authenticated(isAdmin = isAdmin)
+                    }
                 }
 
                 is AuthResult.Failure -> {
-                    _uiState.value =
-                        AuthUiState.Error(result.cause.message ?: "Unknown authentication error")
+                    _uiState.value = AuthUiState.Error(
+                        result.cause.message ?: "Unknown authentication error"
+                    )
                 }
             }
         }

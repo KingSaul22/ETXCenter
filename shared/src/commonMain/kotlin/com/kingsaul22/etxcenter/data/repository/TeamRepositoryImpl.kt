@@ -8,6 +8,7 @@ import com.kingsaul22.etxcenter.domain.model.TeamStats
 import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 class TeamRepositoryImpl(
@@ -28,6 +29,9 @@ class TeamRepositoryImpl(
                     null
                 }
             }
+        }.catch { e ->
+            e.printStackTrace()
+            emit(emptyList())
         }
     }
 
@@ -43,6 +47,9 @@ class TeamRepositoryImpl(
                     null
                 }
             }
+        }.catch { e ->
+            e.printStackTrace()
+            emit(emptyList())
         }
     }
 }

@@ -6,6 +6,7 @@ import com.kingsaul22.etxcenter.domain.model.MatchRecord
 import com.kingsaul22.etxcenter.domain.repository.IMatchRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 class MatchRepositoryImpl(
@@ -27,6 +28,9 @@ class MatchRepositoryImpl(
                         null
                     }
                 }
+            }.catch { e ->
+                e.printStackTrace()
+                emit(emptyList())
             }
     }
 
@@ -41,6 +45,9 @@ class MatchRepositoryImpl(
                     e.printStackTrace()
                     null
                 }
+            }.catch { e ->
+                e.printStackTrace()
+                emit(null)
             }
     }
 }
