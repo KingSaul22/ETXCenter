@@ -97,7 +97,25 @@ sealed class AppStrings(
     val deleteCalendarConfirmMsg: String,
     val playedStatus: String,
     val scheduledStatus: String,
-    
+
+    // Live Screen
+    val liveMatchTitle: String,
+    val noActiveMatch: String,
+    val liveEvents: String,
+    val playerTelemetry: String,
+    val blueTeam: String,
+    val orangeTeam: String,
+    val scoreLabel: String,
+    val goalsLabel: String,
+    val blueShort: String,
+    val orangeShort: String,
+    val otBadge: String,
+    val winsSuffix: String,
+    val finalClock: String,
+    val noEventsYet: String,
+    val eventsDesc: String,
+    val countdownStarted: String,
+    val ballHit: String,
     // General
     val loading: String,
     val errorPrefix: String,
