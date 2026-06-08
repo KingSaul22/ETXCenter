@@ -39,7 +39,7 @@ val appModule = module {
     factory { AuthViewModel(get()) }
     factory { HomeViewModel(get(), get()) }
     factory { LiveViewModel(get()) }
-    factory { StatsViewModel() }
+    factory { StatsViewModel(get(), get()) }
     factory { TeamsViewModel(get()) }
     factory { PlayersViewModel(get()) }
 }
