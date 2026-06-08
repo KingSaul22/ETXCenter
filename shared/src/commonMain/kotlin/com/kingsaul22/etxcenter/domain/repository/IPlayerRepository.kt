@@ -9,4 +9,10 @@ interface IPlayerRepository {
     fun getPlayersFlow(): Flow<List<Player>>
 
     fun getPlayerStatsFlow(): Flow<List<PlayerStats>>
+
+    suspend fun createPlayer(id: String, displayName: String, teamId: String?): Result<Unit>
+
+    suspend fun updatePlayer(id: String, displayName: String, teamId: String?): Result<Unit>
+
+    suspend fun deletePlayer(id: String): Result<Unit>
 }

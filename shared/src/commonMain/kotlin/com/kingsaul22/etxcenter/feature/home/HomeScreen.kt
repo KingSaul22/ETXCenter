@@ -40,6 +40,7 @@ import org.koin.compose.koinInject
 fun HomeScreen(
     onAdminClick: () -> Unit,
     onManageTeamsClick: () -> Unit,
+    onManagePlayersClick: () -> Unit,
     viewModel: HomeViewModel = koinInject()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -157,7 +158,7 @@ fun HomeScreen(
                     )
                     QuickActionCard(
                         label = "Manage Players",
-                        onClick = { /* TODO */ },
+                        onClick = onManagePlayersClick,
                         modifier = Modifier.weight(1f)
                     )
                 }

@@ -9,6 +9,7 @@ import androidx.navigation.toRoute
 import com.kingsaul22.etxcenter.feature.auth.AdminLoginScreen
 import com.kingsaul22.etxcenter.feature.home.HomeScreen
 import com.kingsaul22.etxcenter.feature.live.LiveScreen
+import com.kingsaul22.etxcenter.feature.players.ManagePlayersScreen
 import com.kingsaul22.etxcenter.feature.players.PlayersScreen
 import com.kingsaul22.etxcenter.feature.stats.MatchDetailsScreen
 import com.kingsaul22.etxcenter.feature.stats.MatchDetailsViewModel
@@ -35,6 +36,9 @@ fun AppNavHost(
                 },
                 onManageTeamsClick = {
                     navController.navigate(ManageTeamsDestination)
+                },
+                onManagePlayersClick = {
+                    navController.navigate(ManagePlayersDestination)
                 }
             )
         }
@@ -69,6 +73,12 @@ fun AppNavHost(
 
         composable<ManageTeamsDestination> {
             ManageTeamsScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<ManagePlayersDestination> {
+            ManagePlayersScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }
