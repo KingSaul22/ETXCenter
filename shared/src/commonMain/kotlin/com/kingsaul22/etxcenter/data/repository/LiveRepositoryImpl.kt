@@ -1,7 +1,9 @@
 package com.kingsaul22.etxcenter.data.repository
 
+import com.kingsaul22.etxcenter.data.dto.LiveEventDto
 import com.kingsaul22.etxcenter.data.dto.LiveStateDto
 import com.kingsaul22.etxcenter.data.mapper.toDomain
+import com.kingsaul22.etxcenter.domain.model.LiveEvent
 import com.kingsaul22.etxcenter.domain.model.LiveState
 import com.kingsaul22.etxcenter.domain.repository.ILiveRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
@@ -23,5 +25,27 @@ class LiveRepositoryImpl(
                 null
             }
         }
+    }
+
+    override fun getLiveEventsFeedFlow(): Flow<List<LiveEvent>> {
+        return database.reference("live_events_feed")
+            .limitToLast(20)
+            .valueEvents
+            .map { dataSnapshot ->
+                if (!dataSnapshot.exists) return@map emptyList()
+
+                dataSnapshot.children
+                    .mapNotNull { childSnapshot ->
+                        try {
+                            val id = childSnapshot.key ?: return@mapNotNull null
+                            val dto = childSnapshot.value<LiveEventDto>()
+                            dto.toDomain(id = id)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
+                    .reversed()
+            }
     }
 }

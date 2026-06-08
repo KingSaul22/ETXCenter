@@ -35,6 +35,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kingsaul22.etxcenter.domain.model.LiveEvent
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
 
 private val BlueTeam = Color(0xFF1565C0)
@@ -106,30 +109,71 @@ fun LiveScreen(
                         fontWeight = FontWeight.SemiBold
                     )
 
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = "No events yet",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Goals, saves, and other events will appear here.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                            )
+                    if (state.events.isEmpty()) {
+                        EventsEmptyPlaceholder()
+                    } else {
+                        state.events.forEach { event ->
+                            LiveEventCard(event = event)
                         }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EventsEmptyPlaceholder() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "No events yet",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Goals, saves, and other events will appear here.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LiveEventCard(event: LiveEvent) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = event.displayText(),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                text = event.formattedTime(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -242,4 +286,22 @@ private fun ClockRow(
             color = timeColor
         )
     }
+}
+
+private fun LiveEvent.displayText(): String = when (type) {
+    "countdownbegin" -> "Countdown started"
+    "ballhit" -> {
+        val preSpeed = data["pre_hit_speed"] ?: "0"
+        val postSpeed = data["post_hit_speed"] ?: "0"
+        "Ball hit \u2014 speed: $preSpeed \u2192 $postSpeed kph"
+    }
+    else -> type
+}
+
+private fun LiveEvent.formattedTime(): String {
+    val dt = timestamp.toLocalDateTime(TimeZone.currentSystemDefault())
+    val hh = dt.hour.toString().padStart(2, '0')
+    val mm = dt.minute.toString().padStart(2, '0')
+    val ss = dt.second.toString().padStart(2, '0')
+    return "$hh:$mm:$ss"
 }
