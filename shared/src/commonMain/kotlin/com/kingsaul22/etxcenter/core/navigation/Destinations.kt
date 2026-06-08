@@ -53,5 +53,8 @@ data object ManageTeamsDestination
 data object ManagePlayersDestination
 
 @Serializable
+data object ManageCalendarDestination
+
+@Serializable
 data object ManageMetadataDestination
 
