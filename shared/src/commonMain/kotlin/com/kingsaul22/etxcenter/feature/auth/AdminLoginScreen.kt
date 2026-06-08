@@ -51,9 +51,6 @@ fun AdminLoginScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val strings = LocalStrings.current
-    
-    val fieldsEmptyError = if (strings.languageCode == "es") "Los campos no pueden estar vacíos" else "Fields cannot be empty"
-    val loginFailedError = if (strings.languageCode == "es") "Error al iniciar sesión" else "Login failed"
 
     Scaffold(
         topBar = {
@@ -124,7 +121,7 @@ fun AdminLoginScreen(
                 Button(
                     onClick = {
                         if (email.isBlank() || password.isBlank()) {
-                            errorMessage = fieldsEmptyError
+                            errorMessage = strings.fieldsEmptyError
                             return@Button
                         }
                         isLoading = true
@@ -135,7 +132,7 @@ fun AdminLoginScreen(
                             if (result.isSuccess) {
                                 onLoginSuccess()
                             } else {
-                                errorMessage = result.exceptionOrNull()?.message ?: loginFailedError
+                                errorMessage = result.exceptionOrNull()?.message ?: strings.loginFailedError
                             }
                         }
                     },

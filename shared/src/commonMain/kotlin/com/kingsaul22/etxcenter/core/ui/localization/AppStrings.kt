@@ -156,6 +156,26 @@ sealed class AppStrings(
     val currentlyOnMsg: String,
     val assignedToTeamMsg: String,
     val deleteTeamConfirmMsgDynamic: String,
+
+    // Manage Calendar — extra
+    val emptyCalendarMsg: String,
+    val addCalendarDesc: String,
+    val windowLabel: String,
+    val playedMatchesLabel: String,
+    val createCalendarTitle: String,
+    val editCalendarTitle: String,
+    val invalidDateTimeMsg: String,
+    val selectBothTeamsMsg: String,
+    val startBeforeEndMsg: String,
+    val startLabel: String,
+    val endLabel: String,
+    val blueTeamLabel: String,
+    val orangeTeamLabel: String,
+
+    // Admin Login — extra
+    val fieldsEmptyError: String,
+    val loginFailedError: String,
+
     // General
     val loading: String,
     val errorPrefix: String,

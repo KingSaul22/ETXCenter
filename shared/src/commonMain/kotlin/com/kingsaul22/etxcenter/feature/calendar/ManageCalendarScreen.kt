@@ -67,16 +67,6 @@ fun ManageCalendarScreen(
         }
     }
 
-    val emptyMsg = if (strings.languageCode == "es") "No hay partidos programados. Toca + para agregar uno." else "No scheduled matches. Tap + to add one."
-    val addEntryDesc = if (strings.languageCode == "es") "Programar Próximo Partido" else "Schedule Upcoming Match"
-    val windowLabel = if (strings.languageCode == "es") "Ventana" else "Window"
-    val playedLabel = if (strings.languageCode == "es") "Partidos Jugados (Auto-Vinculados):" else "Played Matches (Auto-Joined):"
-    val createTitle = if (strings.languageCode == "es") "Crear Entrada de Calendario" else "Create Calendar Entry"
-    val editTitle = if (strings.languageCode == "es") "Editar Entrada de Calendario" else "Edit Calendar Entry"
-    val invalidDateTimeMsg = if (strings.languageCode == "es") "Fecha/Hora inválida. Usa AAAA-MM-DD para fechas y HH:mm para horas." else "Invalid Date-Time. Use YYYY-MM-DD for dates and HH:mm for times."
-    val selectBothTeamsMsg = if (strings.languageCode == "es") "Por favor selecciona ambos equipos" else "Please select both teams"
-    val startBeforeEndMsg = if (strings.languageCode == "es") "La hora de inicio debe ser anterior a la de fin" else "Start time must be before End time"
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -108,7 +98,7 @@ fun ManageCalendarScreen(
                     showCreateDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = addEntryDesc)
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addCalendarDesc)
             }
         }
     ) { screenPadding ->
@@ -125,7 +115,7 @@ fun ManageCalendarScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = emptyMsg,
+                        text = strings.emptyCalendarMsg,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -172,7 +162,7 @@ fun ManageCalendarScreen(
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
-                                            text = "$windowLabel: $startStr - $endStr",
+                                            text = "$strings.windowLabel: $startStr - $endStr",
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
@@ -206,7 +196,7 @@ fun ManageCalendarScreen(
                                 if (entry.matchIds.isNotEmpty()) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
-                                        text = playedLabel,
+                                        text = strings.playedMatchesLabel,
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary
@@ -247,7 +237,7 @@ fun ManageCalendarScreen(
     // =============================================
     if (showCreateDialog) {
         CalendarEntryDialog(
-            title = createTitle,
+            title = strings.createCalendarTitle,
             startDate = startDate,
             startTime = startTime,
             endDate = endDate,
@@ -266,15 +256,15 @@ fun ManageCalendarScreen(
                 val start = parseDateTimeToEpoch("$startDate $startTime")
                 val end = parseDateTimeToEpoch("$endDate $endTime")
                 if (start == null || end == null) {
-                    showError = invalidDateTimeMsg
+                    showError = strings.invalidDateTimeMsg
                     return@CalendarEntryDialog
                 }
                 if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
-                    showError = selectBothTeamsMsg
+                    showError = strings.selectBothTeamsMsg
                     return@CalendarEntryDialog
                 }
                 if (start > end) {
-                    showError = startBeforeEndMsg
+                    showError = strings.startBeforeEndMsg
                     return@CalendarEntryDialog
                 }
                 viewModel.createCalendarEntry(
@@ -295,7 +285,7 @@ fun ManageCalendarScreen(
     // =============================================
     entryToEdit?.let { entry ->
         CalendarEntryDialog(
-            title = editTitle,
+            title = strings.editCalendarTitle,
             startDate = startDate,
             startTime = startTime,
             endDate = endDate,
@@ -314,15 +304,15 @@ fun ManageCalendarScreen(
                 val start = parseDateTimeToEpoch("$startDate $startTime")
                 val end = parseDateTimeToEpoch("$endDate $endTime")
                 if (start == null || end == null) {
-                    showError = invalidDateTimeMsg
+                    showError = strings.invalidDateTimeMsg
                     return@CalendarEntryDialog
                 }
                 if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
-                    showError = selectBothTeamsMsg
+                    showError = strings.selectBothTeamsMsg
                     return@CalendarEntryDialog
                 }
                 if (start > end) {
-                    showError = startBeforeEndMsg
+                    showError = strings.startBeforeEndMsg
                     return@CalendarEntryDialog
                 }
                 viewModel.updateCalendarEntry(
@@ -397,10 +387,6 @@ private fun CalendarEntryDialog(
     onDismiss: () -> Unit
 ) {
     val strings = LocalStrings.current
-    val startLabel = if (strings.languageCode == "es") "Inicio" else "Start"
-    val endLabel = if (strings.languageCode == "es") "Fin" else "End"
-    val blueTeamLabel = if (strings.languageCode == "es") "Equipo Azul" else "Blue Team"
-    val orangeTeamLabel = if (strings.languageCode == "es") "Equipo Naranja" else "Orange Team"
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -414,7 +400,7 @@ private fun CalendarEntryDialog(
             ) {
                 // --- Start timestamp ---
                 Text(
-                    text = startLabel,
+                    text = strings.startLabel,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -423,12 +409,12 @@ private fun CalendarEntryDialog(
                     timeValue = startTime,
                     onDateChange = onStartDateChange,
                     onTimeChange = onStartTimeChange,
-                    label = startLabel
+                    label = strings.startLabel
                 )
 
                 // --- End timestamp ---
                 Text(
-                    text = endLabel,
+                    text = strings.endLabel,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold
                 )
@@ -437,7 +423,7 @@ private fun CalendarEntryDialog(
                     timeValue = endTime,
                     onDateChange = onEndDateChange,
                     onTimeChange = onEndTimeChange,
-                    label = endLabel
+                    label = strings.endLabel
                 )
 
                 // --- Inline validation error ---
@@ -457,7 +443,7 @@ private fun CalendarEntryDialog(
                     teams = teams,
                     selectedTeamId = blueTeamId,
                     onTeamSelected = onBlueTeamSelected,
-                    label = blueTeamLabel
+                    label = strings.blueTeamLabel
                 )
 
                 // --- Orange team selector ---
@@ -465,7 +451,7 @@ private fun CalendarEntryDialog(
                     teams = teams,
                     selectedTeamId = orangeTeamId,
                     onTeamSelected = onOrangeTeamSelected,
-                    label = orangeTeamLabel
+                    label = strings.orangeTeamLabel
                 )
             }
         },
