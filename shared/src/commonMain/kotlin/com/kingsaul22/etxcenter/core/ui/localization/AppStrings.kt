@@ -116,6 +116,14 @@ sealed class AppStrings(
     val eventsDesc: String,
     val countdownStarted: String,
     val ballHit: String,
+
+    // Players Screen
+    val playersDirectoryTitle: String,
+    val noTeam: String,
+
+    // Stats Screen
+    val matchHistoryTitle: String,
+    val noMatchesRecorded: String,
     // General
     val loading: String,
     val errorPrefix: String,

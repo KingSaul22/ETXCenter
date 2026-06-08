@@ -41,12 +41,11 @@ fun PlayersScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current
-    val title = if (strings.languageCode == "es") "Directorio de Jugadores" else "Players Directory"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title) },
+                title = { Text(strings.playersDirectoryTitle) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -90,7 +89,6 @@ fun PlayersScreen(
 @Composable
 private fun PlayerCard(player: PlayerProfile) {
     val strings = LocalStrings.current
-    val noTeamLabel = if (strings.languageCode == "es") "Sin Equipo" else "No Team"
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
@@ -113,7 +111,7 @@ private fun PlayerCard(player: PlayerProfile) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = player.teamId ?: noTeamLabel,
+                    text = player.teamId ?: strings.noTeam,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,

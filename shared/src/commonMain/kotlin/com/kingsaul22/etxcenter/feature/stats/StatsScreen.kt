@@ -43,14 +43,11 @@ fun StatsScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current
-    
-    val title = if (strings.languageCode == "es") "Historial de Partidos" else "Match History"
-    val noMatches = if (strings.languageCode == "es") "Aún no hay partidos registrados." else "No matches recorded yet."
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title) },
+                title = { Text(strings.matchHistoryTitle) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -70,7 +67,7 @@ fun StatsScreen(
                 is StatsUiState.Success -> {
                     if (uiState.matches.isEmpty()) {
                         Text(
-                            text = noMatches,
+                            text = strings.noMatchesRecorded,
                             modifier = Modifier.align(Alignment.Center),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
