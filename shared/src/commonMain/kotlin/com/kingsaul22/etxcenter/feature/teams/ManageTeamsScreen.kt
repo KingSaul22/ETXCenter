@@ -1,8 +1,11 @@
 package com.kingsaul22.etxcenter.feature.teams
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -23,9 +26,21 @@ fun ManageTeamsScreen(
     viewModel: ManageTeamsViewModel = koinInject()
 ) {
     val teams by viewModel.teams.collectAsState()
+    val allPlayers by viewModel.players.collectAsState()
+
     var showCreateDialog by remember { mutableStateOf(false) }
     var teamNameInput by remember { mutableStateOf("") }
     var teamToDelete by remember { mutableStateOf<Team?>(null) }
+    var teamRosterToEdit by remember { mutableStateOf<Team?>(null) }
+
+    val selectedPlayerIds = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(teamRosterToEdit) {
+        selectedPlayerIds.clear()
+        val currentTeamId = teamRosterToEdit?.id ?: return@LaunchedEffect
+        val rosterPlayers = allPlayers.filter { it.teamId == currentTeamId }.map { it.id }
+        selectedPlayerIds.addAll(rosterPlayers)
+    }
 
     Scaffold(
         topBar = {
@@ -96,14 +111,22 @@ fun ManageTeamsScreen(
                                 Text(
                                     text = team.name,
                                     style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold
+                                    fontWeight = FontWeight.Bold
                                 )
-                                IconButton(onClick = { teamToDelete = team }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Delete Team",
-                                        tint = MaterialTheme.colorScheme.error
-                                    )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    TextButton(onClick = { teamRosterToEdit = team }) {
+                                        Text("Edit Roster")
+                                    }
+                                    IconButton(onClick = { teamToDelete = team }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = "Delete Team",
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -168,6 +191,90 @@ fun ManageTeamsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { teamToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    teamRosterToEdit?.let { team ->
+        AlertDialog(
+            onDismissRequest = { teamRosterToEdit = null },
+            title = { Text("Edit Roster: ${team.name}") },
+            text = {
+                if (allPlayers.isEmpty()) {
+                    Text("No players available to assign.")
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 300.dp)
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        allPlayers.forEach { player ->
+                            val isSelected = selectedPlayerIds.contains(player.id)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        if (isSelected) {
+                                            selectedPlayerIds.remove(player.id)
+                                        } else {
+                                            selectedPlayerIds.add(player.id)
+                                        }
+                                    }
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = isSelected,
+                                    onCheckedChange = { checked ->
+                                        if (checked == true) {
+                                            selectedPlayerIds.add(player.id)
+                                        } else {
+                                            selectedPlayerIds.remove(player.id)
+                                        }
+                                    }
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Column {
+                                    Text(
+                                        text = player.displayName,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    if (player.teamId != null && player.teamId != team.id) {
+                                        Text(
+                                            text = "Currently on: ${player.teamId}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    } else if (player.teamId == team.id) {
+                                        Text(
+                                            text = "Assigned to this team",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.updateTeamRoster(team.id, selectedPlayerIds.toList())
+                        teamRosterToEdit = null
+                    }
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { teamRosterToEdit = null }) {
                     Text("Cancel")
                 }
             }
