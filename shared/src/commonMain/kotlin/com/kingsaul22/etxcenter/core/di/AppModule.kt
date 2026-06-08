@@ -15,6 +15,7 @@ import com.kingsaul22.etxcenter.feature.home.HomeViewModel
 import com.kingsaul22.etxcenter.feature.live.LiveViewModel
 import com.kingsaul22.etxcenter.feature.players.PlayersViewModel
 import com.kingsaul22.etxcenter.feature.stats.StatsViewModel
+import com.kingsaul22.etxcenter.feature.stats.MatchDetailsViewModel
 import com.kingsaul22.etxcenter.feature.teams.TeamsViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
@@ -42,6 +43,7 @@ val appModule = module {
     factory { StatsViewModel(get(), get()) }
     factory { TeamsViewModel(get()) }
     factory { PlayersViewModel(get()) }
+    factory { params -> MatchDetailsViewModel(matchId = params.get(), get(), get()) }
 }
 
 fun initKoin(config: KoinAppDeclaration? = null) {
