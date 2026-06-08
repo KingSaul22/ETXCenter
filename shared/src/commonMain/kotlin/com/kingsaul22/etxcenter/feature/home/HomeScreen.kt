@@ -42,6 +42,7 @@ fun HomeScreen(
     onManageTeamsClick: () -> Unit,
     onManagePlayersClick: () -> Unit,
     onManageMetadataClick: () -> Unit,
+    onManageCalendarClick: () -> Unit,
     viewModel: HomeViewModel = koinInject()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -170,6 +171,11 @@ fun HomeScreen(
                     QuickActionCard(
                         label = "Edit Metadata",
                         onClick = onManageMetadataClick,
+                        modifier = Modifier.weight(1f)
+                    )
+                    QuickActionCard(
+                        label = "Manage Calendar",
+                        onClick = onManageCalendarClick,
                         modifier = Modifier.weight(1f)
                     )
                 }
