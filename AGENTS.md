@@ -21,6 +21,22 @@ iOS: open `iosApp/` in Xcode, use the `iosApp` scheme with a simulator.
 
 Always run `./gradlew :shared:allTests` before pushing a PR.
 
+## CI (GitHub Actions)
+
+Three workflows in `.github/workflows/`:
+
+| Workflow | Trigger | What it does |
+|---|---|---|
+| `ci-test.yml` | push/PR to `main` | JVM + Android + iOS tests in parallel |
+| `build-check.yml` | PR to `main` | Assembles Android APK + Desktop distributables on all 3 OSes |
+| `release.yml` | tag `v*` or manual | Builds Android APK/AAB + Desktop DMG/MSI/DEB, creates GitHub Release |
+
+CI secrets (environment `development`):
+- `ANDROID_GOOGLE_SERVICES_JSON` — contents of `google-services.json`, restored at build time
+
+Android release version is auto-set from the tag (`versionName` = tag stripped of `v` prefix,
+`versionCode` = `GITHUB_RUN_NUMBER`).
+
 ## Architecture (non-obvious rules)
 
 - **All feature code lives in `shared/src/commonMain/`**, not in Android/JVM/iOS sources.
