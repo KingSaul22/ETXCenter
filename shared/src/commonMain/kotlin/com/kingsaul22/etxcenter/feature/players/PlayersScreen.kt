@@ -32,17 +32,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayersScreen(
     viewModel: PlayersViewModel = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
+    val title = if (strings.languageCode == "es") "Directorio de Jugadores" else "Players Directory"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Players Directory") },
+                title = { Text(title) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -85,6 +89,8 @@ fun PlayersScreen(
 
 @Composable
 private fun PlayerCard(player: PlayerProfile) {
+    val strings = LocalStrings.current
+    val noTeamLabel = if (strings.languageCode == "es") "Sin Equipo" else "No Team"
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
@@ -107,7 +113,7 @@ private fun PlayerCard(player: PlayerProfile) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = player.teamId ?: "No Team",
+                    text = player.teamId ?: noTeamLabel,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -122,7 +128,7 @@ private fun PlayerCard(player: PlayerProfile) {
                 StatChip(label = "A", value = player.assists.toString())
                 StatChip(label = "S", value = player.saves.toString())
                 StatChip(label = "M", value = player.mvps.toString())
-                StatChip(label = "W-L", value = "${player.wins}-${player.losses}")
+                StatChip(label = strings.winLoss, value = "${player.wins}-${player.losses}")
             }
         }
     }
