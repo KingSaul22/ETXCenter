@@ -124,6 +124,19 @@ sealed class AppStrings(
     // Stats Screen
     val matchHistoryTitle: String,
     val noMatchesRecorded: String,
+
+    // Manage Metadata Screen
+    val manageMetadataTitle: String,
+    val addEntry: String,
+    val metadataEmpty: String,
+    val editEntryLabel: String,
+    val deleteEntryLabel: String,
+    val editEntryTitle: String,
+    val createEntryTitle: String,
+    val keyLabel: String,
+    val valueLabel: String,
+    val numericLabel: String,
+    val deleteMetadataConfirmMsg: String,
     // General
     val loading: String,
     val errorPrefix: String,

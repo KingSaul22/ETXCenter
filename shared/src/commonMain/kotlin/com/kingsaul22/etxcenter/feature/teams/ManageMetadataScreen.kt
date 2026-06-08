@@ -43,9 +43,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.koin.compose.koinInject
-
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,22 +60,11 @@ fun ManageMetadataScreen(
     var valueInput by remember { mutableStateOf("") }
     var isNumeric by remember { mutableStateOf(false) }
     var entryToDelete by remember { mutableStateOf<String?>(null) }
-    
-    val title = if (strings.languageCode == "es") "Gestionar Metadatos" else "Manage Metadata"
-    val addEntryLabel = if (strings.languageCode == "es") "Añadir Entrada" else "Add Entry"
-    val emptyLabel = if (strings.languageCode == "es") "No hay entradas de metadatos. Toca + para añadir una." else "No metadata entries. Tap + to add one."
-    val editLabel = if (strings.languageCode == "es") "Editar" else "Edit"
-    val deleteEntryLabel = if (strings.languageCode == "es") "Eliminar Entrada" else "Delete Entry"
-    val editEntryTitle = if (strings.languageCode == "es") "Editar Entrada" else "Edit Entry"
-    val createEntryTitle = if (strings.languageCode == "es") "Crear Entrada" else "Create Entry"
-    val keyLabel = if (strings.languageCode == "es") "Clave" else "Key"
-    val valueLabel = if (strings.languageCode == "es") "Valor" else "Value"
-    val numericLabel = if (strings.languageCode == "es") "Valor numérico" else "Numeric value"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title) },
+                title = { Text(strings.manageMetadataTitle) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
@@ -100,7 +88,7 @@ fun ManageMetadataScreen(
                     showDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = addEntryLabel)
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addEntry)
             }
         }
     ) { screenPadding ->
@@ -115,7 +103,7 @@ fun ManageMetadataScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = emptyLabel,
+                        text = strings.metadataEmpty,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -170,12 +158,12 @@ fun ManageMetadataScreen(
                                             showDialog = true
                                         }
                                     ) {
-                                        Text(editLabel)
+                                        Text(strings.editEntryLabel)
                                     }
                                     IconButton(onClick = { entryToDelete = key }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = deleteEntryLabel,
+                                            contentDescription = strings.deleteEntryLabel,
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -192,7 +180,7 @@ fun ManageMetadataScreen(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
-                Text(if (keyInput.isNotEmpty() && metadata.containsKey(keyInput)) editEntryTitle else createEntryTitle)
+                Text(if (keyInput.isNotEmpty() && metadata.containsKey(keyInput)) strings.editEntryTitle else strings.createEntryTitle)
             },
             text = {
                 Column(
@@ -202,7 +190,7 @@ fun ManageMetadataScreen(
                     OutlinedTextField(
                         value = keyInput,
                         onValueChange = { keyInput = it },
-                        label = { Text(keyLabel) },
+                        label = { Text(strings.keyLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !metadata.containsKey(keyInput) || keyInput.isEmpty()
@@ -210,7 +198,7 @@ fun ManageMetadataScreen(
                     OutlinedTextField(
                         value = valueInput,
                         onValueChange = { valueInput = it },
-                        label = { Text(valueLabel) },
+                        label = { Text(strings.valueLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -223,7 +211,7 @@ fun ManageMetadataScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = numericLabel,
+                            text = strings.numericLabel,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -250,13 +238,11 @@ fun ManageMetadataScreen(
     }
 
     entryToDelete?.let { key ->
-        val deleteText = if (strings.languageCode == "es") "¿Estás seguro de que deseas eliminar \"$key\"? Esta acción no se puede deshacer." else "Are you sure you want to delete \"$key\"? This action cannot be undone."
+        val deleteText = strings.deleteMetadataConfirmMsg.replace("{key}", key)
         AlertDialog(
             onDismissRequest = { entryToDelete = null },
-            title = { Text(deleteEntryLabel) },
-            text = {
-                Text(deleteText)
-            },
+            title = { Text(strings.deleteEntryLabel) },
+            text = { Text(deleteText) },
             confirmButton = {
                 TextButton(
                     onClick = {
