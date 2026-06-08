@@ -8,6 +8,7 @@ import com.kingsaul22.etxcenter.domain.model.LiveState
 import com.kingsaul22.etxcenter.domain.repository.ILiveRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 class LiveRepositoryImpl(
@@ -24,6 +25,9 @@ class LiveRepositoryImpl(
                 e.printStackTrace()
                 null
             }
+        }.catch { e ->
+            e.printStackTrace()
+            emit(null)
         }
     }
 
@@ -46,6 +50,9 @@ class LiveRepositoryImpl(
                         }
                     }
                     .reversed()
+            }.catch { e ->
+                e.printStackTrace()
+                emit(emptyList())
             }
     }
 }
