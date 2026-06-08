@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(
@@ -40,11 +42,15 @@ fun StatsScreen(
     viewModel: StatsViewModel = koinInject()
 ) {
     val state by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
+    
+    val title = if (strings.languageCode == "es") "Historial de Partidos" else "Match History"
+    val noMatches = if (strings.languageCode == "es") "Aún no hay partidos registrados." else "No matches recorded yet."
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Match History") },
+                title = { Text(title) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -64,7 +70,7 @@ fun StatsScreen(
                 is StatsUiState.Success -> {
                     if (uiState.matches.isEmpty()) {
                         Text(
-                            text = "No matches recorded yet.",
+                            text = noMatches,
                             modifier = Modifier.align(Alignment.Center),
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
