@@ -42,3 +42,6 @@ val TopLevelDestination.icon: ImageVector
 
 @Serializable
 data class MatchDetailsDestination(val matchId: String)
+
+@Serializable
+data object AdminLoginDestination

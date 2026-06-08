@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.kingsaul22.etxcenter.feature.auth.AdminLoginScreen
 import com.kingsaul22.etxcenter.feature.home.HomeScreen
 import com.kingsaul22.etxcenter.feature.live.LiveScreen
 import com.kingsaul22.etxcenter.feature.players.PlayersScreen
@@ -26,7 +27,13 @@ fun AppNavHost(
         startDestination = TopLevelDestination.Home,
         modifier = modifier
     ) {
-        composable<TopLevelDestination.Home> { HomeScreen() }
+        composable<TopLevelDestination.Home> {
+            HomeScreen(
+                onAdminClick = {
+                    navController.navigate(AdminLoginDestination)
+                }
+            )
+        }
         composable<TopLevelDestination.Live> { LiveScreen() }
         composable<TopLevelDestination.Stats> {
             StatsScreen(
@@ -46,6 +53,13 @@ fun AppNavHost(
             MatchDetailsScreen(
                 viewModel = viewModel,
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<AdminLoginDestination> {
+            AdminLoginScreen(
+                onBackClick = { navController.popBackStack() },
+                onLoginSuccess = { navController.popBackStack() }
             )
         }
     }
