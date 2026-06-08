@@ -1,6 +1,7 @@
 package com.kingsaul22.etxcenter.feature.live
 
 import com.kingsaul22.etxcenter.domain.model.LiveEvent
+import com.kingsaul22.etxcenter.domain.model.PlayerTelemetry
 
 sealed interface LiveUiState {
     data object Loading : LiveUiState
@@ -15,6 +16,7 @@ sealed interface LiveUiState {
         val scoreOrange: Int,
         val timeRemainingSeconds: Long,
         val winner: String,
-        val events: List<LiveEvent>
+        val events: List<LiveEvent>,
+        val playerTelemetry: List<PlayerTelemetry>
     ) : LiveUiState
 }

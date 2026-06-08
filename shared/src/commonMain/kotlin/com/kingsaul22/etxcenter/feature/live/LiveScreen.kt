@@ -18,6 +18,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -33,9 +34,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kingsaul22.etxcenter.domain.model.LiveEvent
+import com.kingsaul22.etxcenter.domain.model.PlayerTelemetry
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
@@ -113,6 +116,10 @@ fun LiveScreen(
                         hasWinner = state.hasWinner
                     )
 
+                    if (state.playerTelemetry.isNotEmpty()) {
+                        LiveTelemetryBoard(telemetry = state.playerTelemetry)
+                    }
+
                     Text(
                         text = "Live Events",
                         style = MaterialTheme.typography.titleLarge,
@@ -131,6 +138,115 @@ fun LiveScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LiveTelemetryBoard(telemetry: List<PlayerTelemetry>) {
+    val bluePlayers = telemetry.filter { it.team == 0 }
+    val orangePlayers = telemetry.filter { it.team == 1 }
+
+    Text(
+        text = "Player Telemetry",
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.SemiBold
+    )
+
+    if (bluePlayers.isNotEmpty()) {
+        TeamTelemetrySection(
+            label = "BLUE TEAM",
+            color = BlueTeam,
+            players = bluePlayers
+        )
+    }
+
+    if (orangePlayers.isNotEmpty()) {
+        TeamTelemetrySection(
+            label = "ORANGE TEAM",
+            color = OrangeTeam,
+            players = orangePlayers
+        )
+    }
+}
+
+@Composable
+private fun TeamTelemetrySection(
+    label: String,
+    color: Color,
+    players: List<PlayerTelemetry>
+) {
+    Text(
+        text = label,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.Bold,
+        color = color
+    )
+
+    players.forEach { player ->
+        PlayerTelemetryCard(player = player, boostColor = color)
+    }
+}
+
+@Composable
+private fun PlayerTelemetryCard(
+    player: PlayerTelemetry,
+    boostColor: Color
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(
+                text = player.playerId,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LinearProgressIndicator(
+                progress = { player.boost / 100f },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(MaterialTheme.shapes.small),
+                color = boostColor,
+                trackColor = boostColor.copy(alpha = 0.15f),
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                StatBadge(label = "Score", value = player.score)
+                StatBadge(label = "Goals", value = player.goals)
+                StatBadge(label = "Shots", value = player.shots)
+                StatBadge(label = "Saves", value = player.saves)
+            }
+        }
+    }
+}
+
+@Composable
+private fun StatBadge(label: String, value: Int) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = value.toString(),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
