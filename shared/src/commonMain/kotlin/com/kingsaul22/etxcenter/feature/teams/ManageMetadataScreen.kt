@@ -45,6 +45,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageMetadataScreen(
@@ -52,22 +54,34 @@ fun ManageMetadataScreen(
     viewModel: ManageMetadataViewModel = koinInject()
 ) {
     val metadata by viewModel.metadata.collectAsState()
+    val strings = LocalStrings.current
 
     var showDialog by remember { mutableStateOf(false) }
     var keyInput by remember { mutableStateOf("") }
     var valueInput by remember { mutableStateOf("") }
     var isNumeric by remember { mutableStateOf(false) }
     var entryToDelete by remember { mutableStateOf<String?>(null) }
+    
+    val title = if (strings.languageCode == "es") "Gestionar Metadatos" else "Manage Metadata"
+    val addEntryLabel = if (strings.languageCode == "es") "Añadir Entrada" else "Add Entry"
+    val emptyLabel = if (strings.languageCode == "es") "No hay entradas de metadatos. Toca + para añadir una." else "No metadata entries. Tap + to add one."
+    val editLabel = if (strings.languageCode == "es") "Editar" else "Edit"
+    val deleteEntryLabel = if (strings.languageCode == "es") "Eliminar Entrada" else "Delete Entry"
+    val editEntryTitle = if (strings.languageCode == "es") "Editar Entrada" else "Edit Entry"
+    val createEntryTitle = if (strings.languageCode == "es") "Crear Entrada" else "Create Entry"
+    val keyLabel = if (strings.languageCode == "es") "Clave" else "Key"
+    val valueLabel = if (strings.languageCode == "es") "Valor" else "Value"
+    val numericLabel = if (strings.languageCode == "es") "Valor numérico" else "Numeric value"
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manage Metadata") },
+                title = { Text(title) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = strings.goBack
                         )
                     }
                 },
@@ -86,7 +100,7 @@ fun ManageMetadataScreen(
                     showDialog = true
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Entry")
+                Icon(imageVector = Icons.Default.Add, contentDescription = addEntryLabel)
             }
         }
     ) { screenPadding ->
@@ -101,7 +115,7 @@ fun ManageMetadataScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No metadata entries. Tap + to add one.",
+                        text = emptyLabel,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -156,12 +170,12 @@ fun ManageMetadataScreen(
                                             showDialog = true
                                         }
                                     ) {
-                                        Text("Edit")
+                                        Text(editLabel)
                                     }
                                     IconButton(onClick = { entryToDelete = key }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete Entry",
+                                            contentDescription = deleteEntryLabel,
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -178,7 +192,7 @@ fun ManageMetadataScreen(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
-                Text(if (keyInput.isNotEmpty() && metadata.containsKey(keyInput)) "Edit Entry" else "Create Entry")
+                Text(if (keyInput.isNotEmpty() && metadata.containsKey(keyInput)) editEntryTitle else createEntryTitle)
             },
             text = {
                 Column(
@@ -188,7 +202,7 @@ fun ManageMetadataScreen(
                     OutlinedTextField(
                         value = keyInput,
                         onValueChange = { keyInput = it },
-                        label = { Text("Key") },
+                        label = { Text(keyLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !metadata.containsKey(keyInput) || keyInput.isEmpty()
@@ -196,7 +210,7 @@ fun ManageMetadataScreen(
                     OutlinedTextField(
                         value = valueInput,
                         onValueChange = { valueInput = it },
-                        label = { Text("Value") },
+                        label = { Text(valueLabel) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -209,7 +223,7 @@ fun ManageMetadataScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Numeric value",
+                            text = numericLabel,
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -224,23 +238,24 @@ fun ManageMetadataScreen(
                         }
                     }
                 ) {
-                    Text("Save")
+                    Text(strings.save)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
     }
 
     entryToDelete?.let { key ->
+        val deleteText = if (strings.languageCode == "es") "¿Estás seguro de que deseas eliminar \"$key\"? Esta acción no se puede deshacer." else "Are you sure you want to delete \"$key\"? This action cannot be undone."
         AlertDialog(
             onDismissRequest = { entryToDelete = null },
-            title = { Text("Delete Entry") },
+            title = { Text(deleteEntryLabel) },
             text = {
-                Text("Are you sure you want to delete \"$key\"? This action cannot be undone.")
+                Text(deleteText)
             },
             confirmButton = {
                 TextButton(
@@ -252,12 +267,12 @@ fun ManageMetadataScreen(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete")
+                    Text(strings.delete)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { entryToDelete = null }) {
-                    Text("Cancel")
+                    Text(strings.cancel)
                 }
             }
         )
