@@ -147,7 +147,7 @@ fun ManagePlayersScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Edit,
-                                            contentDescription = strings.editRoster,
+                                            contentDescription = strings.editPlayerDesc,
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }

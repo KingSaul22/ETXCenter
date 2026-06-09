@@ -114,7 +114,7 @@ fun ManageCalendarScreen(
                                     IconButton(onClick = { entryToEdit = entry }) {
                                         Icon(
                                             imageVector = Icons.Default.Edit,
-                                            contentDescription = strings.editRoster,
+                                            contentDescription = strings.editCalendarDesc,
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
