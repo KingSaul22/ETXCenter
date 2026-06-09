@@ -49,7 +49,7 @@ jobs:
 
       - name: Restore google-services.json
         run: |
-          echo "${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}" > androidApp/google-services.json
+          echo "${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}" | base64 --decode > androidApp/google-services.json
 
       - uses: gradle/actions/setup-gradle@v6
 
