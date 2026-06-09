@@ -48,7 +48,7 @@ val appModule = module {
 
     // Register the ViewModel (using modern Koin DSL)
     factory { AuthViewModel(get()) }
-    factory { HomeViewModel(get(), get(), get()) }
+    factory { HomeViewModel(get(), get(), get(), get(), get()) }
     factory { LiveViewModel(get()) }
     factory { StatsViewModel(get(), get()) }
     factory { TeamsViewModel(get()) }
