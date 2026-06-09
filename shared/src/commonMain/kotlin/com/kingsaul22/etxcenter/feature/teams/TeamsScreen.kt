@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,9 +29,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.kingsaul22.etxcenter.core.ui.components.TeamLogo
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,11 +43,12 @@ fun TeamsScreen(
     viewModel: TeamsViewModel = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Teams Directory") },
+                title = { Text(strings.navTeams) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -62,21 +69,34 @@ fun TeamsScreen(
             is TeamsUiState.Success -> {
                 val teams = (uiState as TeamsUiState.Success).teams
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(screenPadding)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
-
-                    items(teams, key = { it.teamId }) { team ->
-                        TeamCard(team = team)
+                if (teams.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(screenPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = strings.noTeamsFoundMsg,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(screenPadding)
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
-                }
+                        items(teams, key = { it.teamId }) { team ->
+                            TeamCard(team = team)
+                        }
+
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+                    }
+                } // Closes else block
             }
         }
     }
@@ -84,6 +104,7 @@ fun TeamsScreen(
 
 @Composable
 private fun TeamCard(team: TeamProfile) {
+    val strings = LocalStrings.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
@@ -92,30 +113,46 @@ private fun TeamCard(team: TeamProfile) {
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = team.name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TeamLogo(
+                    logoUrl = team.logoUrl,
+                    contentDescription = team.name,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                )
 
-            Spacer(modifier = Modifier.height(2.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
-            Text(
-                text = "Matches Played: ${team.matchesPlayed}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = team.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Spacer(modifier = Modifier.height(2.dp))
+
+                    Text(
+                        text = "${strings.matchesPlayed}: ${team.matchesPlayed}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                StatChip(label = "Win%", value = "${team.winRatePercentage}%")
-                StatChip(label = "W-L", value = "${team.wins}-${team.losses}")
-                StatChip(label = "GF", value = team.goalsFor.toString())
-                StatChip(label = "GA", value = team.goalsAgainst.toString())
-                StatChip(label = "Demos", value = team.demos.toString())
+                StatChip(label = strings.winRate, value = "${team.winRatePercentage}%")
+                StatChip(label = strings.winLoss, value = "${team.wins}-${team.losses}")
+                StatChip(label = strings.goalsForShort, value = team.goalsFor.toString())
+                StatChip(label = strings.goalsAgainstShort, value = team.goalsAgainst.toString())
+                StatChip(label = strings.demosShort, value = team.demos.toString())
             }
         }
     }

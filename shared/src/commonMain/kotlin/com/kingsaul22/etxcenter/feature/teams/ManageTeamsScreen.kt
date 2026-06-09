@@ -19,6 +19,10 @@ import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.domain.model.Team
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.StandardConfirmDialog
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageTeamsScreen(
@@ -27,47 +31,24 @@ fun ManageTeamsScreen(
 ) {
     val teams by viewModel.teams.collectAsState()
     val allPlayers by viewModel.players.collectAsState()
+    val strings = LocalStrings.current
 
     var showCreateDialog by remember { mutableStateOf(false) }
-    var teamNameInput by remember { mutableStateOf("") }
     var teamToDelete by remember { mutableStateOf<Team?>(null) }
     var teamRosterToEdit by remember { mutableStateOf<Team?>(null) }
 
-    val selectedPlayerIds = remember { mutableStateListOf<String>() }
-
-    LaunchedEffect(teamRosterToEdit) {
-        selectedPlayerIds.clear()
-        val currentTeamId = teamRosterToEdit?.id ?: return@LaunchedEffect
-        val rosterPlayers = allPlayers.filter { it.teamId == currentTeamId }.map { it.id }
-        selectedPlayerIds.addAll(rosterPlayers)
-    }
-
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Manage Teams") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            EtxTopAppBar(
+                title = strings.manageTeamsTitle,
+                onBackClick = onBackClick
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    teamNameInput = ""
-                    showCreateDialog = true
-                }
+                onClick = { showCreateDialog = true }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Team")
+                Icon(imageVector = Icons.Default.Add, contentDescription = strings.addTeamDesc)
             }
         }
     ) { screenPadding ->
@@ -82,7 +63,7 @@ fun ManageTeamsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No teams available. Tap + to add one.",
+                        text = strings.emptyTeamsMsg,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -94,7 +75,7 @@ fun ManageTeamsScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(teams) { team ->
+                    items(teams, key = { it.id }) { team ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -118,12 +99,12 @@ fun ManageTeamsScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     TextButton(onClick = { teamRosterToEdit = team }) {
-                                        Text("Edit Roster")
+                                        Text(strings.editRoster)
                                     }
                                     IconButton(onClick = { teamToDelete = team }) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Delete Team",
+                                            contentDescription = strings.delete,
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -137,147 +118,183 @@ fun ManageTeamsScreen(
     }
 
     if (showCreateDialog) {
-        AlertDialog(
-            onDismissRequest = { showCreateDialog = false },
-            title = { Text("Create New Team") },
-            text = {
-                OutlinedTextField(
-                    value = teamNameInput,
-                    onValueChange = { teamNameInput = it },
-                    label = { Text("Team Name") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+        CreateTeamDialog(
+            onConfirm = { name ->
+                viewModel.createTeam(name)
+                showCreateDialog = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (teamNameInput.isNotBlank()) {
-                            viewModel.createTeam(teamNameInput)
-                            showCreateDialog = false
-                        }
-                    }
-                ) {
-                    Text("Create")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCreateDialog = false }) {
-                    Text("Cancel")
-                }
-            }
+            onDismiss = { showCreateDialog = false }
         )
     }
 
     teamToDelete?.let { team ->
-        AlertDialog(
-            onDismissRequest = { teamToDelete = null },
-            title = { Text("Delete Team") },
-            text = {
-                Text("Are you sure you want to delete team \"${team.name}\"? This action cannot be undone.")
+        val confirmMsg = strings.deleteTeamConfirmMsgDynamic.replace("{name}", team.name)
+        StandardConfirmDialog(
+            title = strings.deleteTeamConfirmTitle,
+            message = confirmMsg,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
+            isDestructive = true,
+            onConfirm = {
+                viewModel.deleteTeam(team.id)
+                teamToDelete = null
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteTeam(team.id)
-                        teamToDelete = null
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text("Delete")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { teamToDelete = null }) {
-                    Text("Cancel")
-                }
-            }
+            onDismiss = { teamToDelete = null }
         )
     }
 
     teamRosterToEdit?.let { team ->
-        AlertDialog(
-            onDismissRequest = { teamRosterToEdit = null },
-            title = { Text("Edit Roster: ${team.name}") },
-            text = {
-                if (allPlayers.isEmpty()) {
-                    Text("No players available to assign.")
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 300.dp)
-                            .verticalScroll(rememberScrollState()),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        allPlayers.forEach { player ->
-                            val isSelected = selectedPlayerIds.contains(player.id)
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        if (isSelected) {
-                                            selectedPlayerIds.remove(player.id)
-                                        } else {
-                                            selectedPlayerIds.add(player.id)
-                                        }
+        TeamRosterDialog(
+            team = team,
+            allPlayers = allPlayers,
+            onConfirm = { playerIds ->
+                viewModel.updateTeamRoster(team.id, playerIds)
+                teamRosterToEdit = null
+            },
+            onDismiss = { teamRosterToEdit = null }
+        )
+    }
+}
+
+@Composable
+private fun CreateTeamDialog(
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val strings = LocalStrings.current
+    var teamNameInput by remember { mutableStateOf("") }
+    var isSubmitting by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(strings.createNewTeam) },
+        text = {
+            OutlinedTextField(
+                value = teamNameInput,
+                onValueChange = { teamNameInput = it },
+                label = { Text(strings.teamNameLabel) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (teamNameInput.isNotBlank() && !isSubmitting) {
+                        isSubmitting = true
+                        onConfirm(teamNameInput)
+                    }
+                },
+                enabled = !isSubmitting
+            ) {
+                Text(strings.create)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(strings.cancel)
+            }
+        }
+    )
+}
+
+@Composable
+private fun TeamRosterDialog(
+    team: Team,
+    allPlayers: List<com.kingsaul22.etxcenter.domain.model.Player>,
+    onConfirm: (List<String>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val strings = LocalStrings.current
+    var isSubmitting by remember { mutableStateOf(false) }
+    val selectedPlayerIds = remember(team) {
+        mutableStateListOf<String>().apply {
+            addAll(allPlayers.filter { it.teamId == team.id }.map { it.id })
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("${strings.editRosterTitle}: ${team.name}") },
+        text = {
+            if (allPlayers.isEmpty()) {
+                Text(strings.noPlayersAvailableMsg)
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 300.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    allPlayers.forEach { player ->
+                        val isSelected = selectedPlayerIds.contains(player.id)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    if (isSelected) {
+                                        selectedPlayerIds.remove(player.id)
+                                    } else {
+                                        selectedPlayerIds.add(player.id)
                                     }
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = isSelected,
-                                    onCheckedChange = { checked ->
-                                        if (checked == true) {
-                                            selectedPlayerIds.add(player.id)
-                                        } else {
-                                            selectedPlayerIds.remove(player.id)
-                                        }
+                                }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = isSelected,
+                                onCheckedChange = { checked ->
+                                    if (checked == true) {
+                                        selectedPlayerIds.add(player.id)
+                                    } else {
+                                        selectedPlayerIds.remove(player.id)
                                     }
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column {
+                                Text(
+                                    text = player.displayName,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.SemiBold
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
+                                if (player.teamId != null && player.teamId != team.id) {
                                     Text(
-                                        text = player.displayName,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.SemiBold
+                                        text = "${strings.currentlyOnMsg}${player.teamId}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
                                     )
-                                    if (player.teamId != null && player.teamId != team.id) {
-                                        Text(
-                                            text = "Currently on: ${player.teamId}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    } else if (player.teamId == team.id) {
-                                        Text(
-                                            text = "Assigned to this team",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
+                                } else if (player.teamId == team.id) {
+                                    Text(
+                                        text = strings.assignedToTeamMsg,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
                                 }
                             }
                         }
                     }
                 }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.updateTeamRoster(team.id, selectedPlayerIds.toList())
-                        teamRosterToEdit = null
-                    }
-                ) {
-                    Text("Save")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { teamRosterToEdit = null }) {
-                    Text("Cancel")
-                }
             }
-        )
-    }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (!isSubmitting) {
+                        isSubmitting = true
+                        onConfirm(selectedPlayerIds.toList())
+                    }
+                },
+                enabled = !isSubmitting
+            ) {
+                Text(strings.save)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(strings.cancel)
+            }
+        }
+    )
 }

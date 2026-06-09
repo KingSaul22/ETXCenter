@@ -8,6 +8,8 @@ sealed interface MatchDetailsUiState {
         val formattedDate: String,
         val blueTeamName: String,
         val orangeTeamName: String,
+        val blueTeamLogoUrl: String?,
+        val orangeTeamLogoUrl: String?,
         val blueScore: Long,
         val orangeScore: Long,
         val blueShots: Long,

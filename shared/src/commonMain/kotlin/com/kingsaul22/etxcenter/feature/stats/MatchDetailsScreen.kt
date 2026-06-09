@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -39,6 +40,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.kingsaul22.etxcenter.core.ui.components.TeamLogo
+
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.TeamMatchupHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,23 +53,13 @@ fun MatchDetailsScreen(
     onBackClick: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Match Details") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            EtxTopAppBar(
+                title = strings.matchDetails,
+                onBackClick = onBackClick
             )
         }
     ) { screenPadding ->
@@ -83,12 +79,12 @@ fun MatchDetailsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Match not found.",
+                            text = strings.matchNotFound,
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Button(onClick = onBackClick) {
-                            Text("Go Back")
+                            Text(strings.goBack)
                         }
                     }
                 }
@@ -121,44 +117,27 @@ fun MatchDetailsScreen(
                                 
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Blue Team Name
-                                    Text(
-                                        text = uiState.blueTeamName,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.weight(1f),
-                                        textAlign = TextAlign.Start
-                                    )
-                                    
-                                    // Score
-                                    Text(
-                                        text = "${uiState.blueScore} - ${uiState.orangeScore}",
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        fontWeight = FontWeight.Black,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-                                    
-                                    // Orange Team Name
-                                    Text(
-                                        text = uiState.orangeTeamName,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.weight(1f),
-                                        textAlign = TextAlign.End
-                                    )
-                                }
+                                TeamMatchupHeader(
+                                    blueTeamName = uiState.blueTeamName,
+                                    orangeTeamName = uiState.orangeTeamName,
+                                    blueTeamLogoUrl = uiState.blueTeamLogoUrl,
+                                    orangeTeamLogoUrl = uiState.orangeTeamLogoUrl,
+                                    centerContent = {
+                                        Text(
+                                            text = "${uiState.blueScore} - ${uiState.orangeScore}",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Black,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                        )
+                                    }
+                                )
                             }
                         }
 
                         // Comparative Stats Section
                         Text(
-                            text = "Comparative Stats",
+                            text = strings.comparativeStats,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -175,22 +154,22 @@ fun MatchDetailsScreen(
                                 verticalArrangement = Arrangement.spacedBy(20.dp)
                             ) {
                                 StatProgressBarRow(
-                                    label = "Shots",
+                                    label = strings.shots,
                                     blueValue = uiState.blueShots,
                                     orangeValue = uiState.orangeShots
                                 )
                                 StatProgressBarRow(
-                                    label = "Assists",
+                                    label = strings.assists,
                                     blueValue = uiState.blueAssists,
                                     orangeValue = uiState.orangeAssists
                                 )
                                 StatProgressBarRow(
-                                    label = "Saves",
+                                    label = strings.saves,
                                     blueValue = uiState.blueSaves,
                                     orangeValue = uiState.orangeSaves
                                 )
                                 StatProgressBarRow(
-                                    label = "Demos",
+                                    label = strings.demos,
                                     blueValue = uiState.blueDemos,
                                     orangeValue = uiState.orangeDemos
                                 )

@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,11 +39,12 @@ fun PlayersScreen(
     viewModel: PlayersViewModel = koinInject()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Players Directory") },
+                title = { Text(strings.playersDirectoryTitle) },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -63,21 +65,34 @@ fun PlayersScreen(
             is PlayersUiState.Success -> {
                 val players = (uiState as PlayersUiState.Success).players
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(screenPadding)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
-
-                    items(players, key = { it.playerId }) { player ->
-                        PlayerCard(player = player)
+                if (players.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(screenPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = strings.noPlayersFoundMsg,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(screenPadding)
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
-                }
+                        items(players, key = { it.playerId }) { player ->
+                            PlayerCard(player = player)
+                        }
+
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+                    }
+                } // Closes else block
             }
         }
     }
@@ -85,6 +100,7 @@ fun PlayersScreen(
 
 @Composable
 private fun PlayerCard(player: PlayerProfile) {
+    val strings = LocalStrings.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
@@ -107,7 +123,7 @@ private fun PlayerCard(player: PlayerProfile) {
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = player.teamId ?: "No Team",
+                    text = player.teamId ?: strings.noTeam,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -122,7 +138,7 @@ private fun PlayerCard(player: PlayerProfile) {
                 StatChip(label = "A", value = player.assists.toString())
                 StatChip(label = "S", value = player.saves.toString())
                 StatChip(label = "M", value = player.mvps.toString())
-                StatChip(label = "W-L", value = "${player.wins}-${player.losses}")
+                StatChip(label = strings.winLoss, value = "${player.wins}-${player.losses}")
             }
         }
     }

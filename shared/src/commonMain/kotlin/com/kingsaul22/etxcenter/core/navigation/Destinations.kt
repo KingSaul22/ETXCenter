@@ -49,3 +49,12 @@ data object AdminLoginDestination
 @Serializable
 data object ManageTeamsDestination
 
+@Serializable
+data object ManagePlayersDestination
+
+@Serializable
+data object ManageCalendarDestination
+
+@Serializable
+data object ManageMetadataDestination
+

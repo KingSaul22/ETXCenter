@@ -10,7 +10,9 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.flowOf
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -23,12 +25,13 @@ class AuthViewModelTest {
     fun `authentication emits Loading then Authenticated on success`() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
         Dispatchers.setMain(testDispatcher)
+        var viewModel: AuthViewModel? = null
         try {
             val mockRepo: IAuthRepository = mockk()
             coEvery { mockRepo.signInSilently() } returns AuthResult.Success
             every { mockRepo.getIsAdminFlow() } returns flowOf(false)
 
-            val viewModel = AuthViewModel(mockRepo)
+            viewModel = AuthViewModel(mockRepo)
 
             viewModel.uiState.test {
                 assertEquals(AuthUiState.Loading, awaitItem())
@@ -39,6 +42,8 @@ class AuthViewModelTest {
                 cancelAndIgnoreRemainingEvents()
             }
         } finally {
+            viewModel?.viewModelScope?.cancel()
+            testScheduler.advanceUntilIdle()
             Dispatchers.resetMain()
         }
     }
@@ -47,12 +52,13 @@ class AuthViewModelTest {
     fun `authentication emits Loading then Error on failure`() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
         Dispatchers.setMain(testDispatcher)
+        var viewModel: AuthViewModel? = null
         try {
             val error = RuntimeException("Network unavailable")
             val mockRepo: IAuthRepository = mockk()
             coEvery { mockRepo.signInSilently() } returns AuthResult.Failure(error)
 
-            val viewModel = AuthViewModel(mockRepo)
+            viewModel = AuthViewModel(mockRepo)
 
             viewModel.uiState.test {
                 assertEquals(AuthUiState.Loading, awaitItem())
@@ -63,6 +69,8 @@ class AuthViewModelTest {
                 cancelAndIgnoreRemainingEvents()
             }
         } finally {
+            viewModel?.viewModelScope?.cancel()
+            testScheduler.advanceUntilIdle()
             Dispatchers.resetMain()
         }
     }
@@ -71,13 +79,14 @@ class AuthViewModelTest {
     fun `retry after error emits Loading then Authenticated`() = runTest {
         val testDispatcher = StandardTestDispatcher(testScheduler)
         Dispatchers.setMain(testDispatcher)
+        var viewModel: AuthViewModel? = null
         try {
             val error = RuntimeException("First attempt failed")
             val mockRepo: IAuthRepository = mockk()
             coEvery { mockRepo.signInSilently() } returns AuthResult.Failure(error) andThen AuthResult.Success
             every { mockRepo.getIsAdminFlow() } returns flowOf(false)
 
-            val viewModel = AuthViewModel(mockRepo)
+            viewModel = AuthViewModel(mockRepo)
 
             viewModel.uiState.test {
                 assertEquals(AuthUiState.Loading, awaitItem())
@@ -93,6 +102,8 @@ class AuthViewModelTest {
                 cancelAndIgnoreRemainingEvents()
             }
         } finally {
+            viewModel?.viewModelScope?.cancel()
+            testScheduler.advanceUntilIdle()
             Dispatchers.resetMain()
         }
     }

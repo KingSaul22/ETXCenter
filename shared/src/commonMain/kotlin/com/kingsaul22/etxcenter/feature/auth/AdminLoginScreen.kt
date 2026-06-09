@@ -36,6 +36,9 @@ import com.kingsaul22.etxcenter.domain.repository.IAuthRepository
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
+import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminLoginScreen(
@@ -48,23 +51,13 @@ fun AdminLoginScreen(
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
+    val strings = LocalStrings.current
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Admin Login") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            EtxTopAppBar(
+                title = strings.adminLoginTitle,
+                onBackClick = onBackClick
             )
         }
     ) { screenPadding ->
@@ -81,7 +74,7 @@ fun AdminLoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Elevate Privileges",
+                    text = strings.adminLoginTitle,
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -89,7 +82,7 @@ fun AdminLoginScreen(
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it; errorMessage = null },
-                    label = { Text("Email") },
+                    label = { Text(strings.emailLabel) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !isLoading
@@ -98,7 +91,7 @@ fun AdminLoginScreen(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it; errorMessage = null },
-                    label = { Text("Password") },
+                    label = { Text(strings.passwordLabel) },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
@@ -118,7 +111,7 @@ fun AdminLoginScreen(
                 Button(
                     onClick = {
                         if (email.isBlank() || password.isBlank()) {
-                            errorMessage = "Fields cannot be empty"
+                            errorMessage = strings.fieldsEmptyError
                             return@Button
                         }
                         isLoading = true
@@ -129,7 +122,7 @@ fun AdminLoginScreen(
                             if (result.isSuccess) {
                                 onLoginSuccess()
                             } else {
-                                errorMessage = result.exceptionOrNull()?.message ?: "Login failed"
+                                errorMessage = result.exceptionOrNull()?.message ?: strings.loginFailedError
                             }
                         }
                     },
@@ -143,7 +136,7 @@ fun AdminLoginScreen(
                             strokeWidth = 2.dp
                         )
                     } else {
-                        Text("Login")
+                        Text(strings.logIn)
                     }
                 }
             }

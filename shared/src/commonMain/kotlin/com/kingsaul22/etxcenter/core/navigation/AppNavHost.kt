@@ -9,11 +9,14 @@ import androidx.navigation.toRoute
 import com.kingsaul22.etxcenter.feature.auth.AdminLoginScreen
 import com.kingsaul22.etxcenter.feature.home.HomeScreen
 import com.kingsaul22.etxcenter.feature.live.LiveScreen
+import com.kingsaul22.etxcenter.feature.players.ManagePlayersScreen
+import com.kingsaul22.etxcenter.feature.calendar.ManageCalendarScreen
 import com.kingsaul22.etxcenter.feature.players.PlayersScreen
 import com.kingsaul22.etxcenter.feature.stats.MatchDetailsScreen
 import com.kingsaul22.etxcenter.feature.stats.MatchDetailsViewModel
 import com.kingsaul22.etxcenter.feature.stats.StatsScreen
 import com.kingsaul22.etxcenter.feature.teams.ManageTeamsScreen
+import com.kingsaul22.etxcenter.feature.teams.ManageMetadataScreen
 import com.kingsaul22.etxcenter.feature.teams.TeamsScreen
 import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
@@ -35,6 +38,15 @@ fun AppNavHost(
                 },
                 onManageTeamsClick = {
                     navController.navigate(ManageTeamsDestination)
+                },
+                onManagePlayersClick = {
+                    navController.navigate(ManagePlayersDestination)
+                },
+                onManageMetadataClick = {
+                    navController.navigate(ManageMetadataDestination)
+                },
+                onManageCalendarClick = {
+                    navController.navigate(ManageCalendarDestination)
                 }
             )
         }
@@ -69,6 +81,24 @@ fun AppNavHost(
 
         composable<ManageTeamsDestination> {
             ManageTeamsScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<ManagePlayersDestination> {
+            ManagePlayersScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<ManageMetadataDestination> {
+            ManageMetadataScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable<ManageCalendarDestination> {
+            ManageCalendarScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }
