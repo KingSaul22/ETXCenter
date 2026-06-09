@@ -21,7 +21,7 @@ navigationCompose = "2.9.2"
 materialIconsExtended = "1.7.3"
 kotlinxSerialization = "1.11.0"
 kotlinxDatetime = "0.8.0"
-firebaseBom = "34.14.0"
+firebaseBom = "34.14.1"
 googleServices = "4.4.4"
 coil = "3.4.0"
 # Testing
