@@ -45,6 +45,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,8 +64,8 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(strings.appTitle) },
+            EtxTopAppBar(
+                title = strings.appTitle,
                 actions = {
                     // Language Switcher Toggle Button
                     IconButton(
@@ -95,11 +96,7 @@ fun HomeScreen(
                             contentDescription = if (state.isAdmin) strings.adminLogout else strings.adminLogin
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                }
             )
         }
     ) { screenPadding ->

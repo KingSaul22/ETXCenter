@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,12 +47,8 @@ fun StatsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(strings.matchHistoryTitle) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            EtxTopAppBar(
+                title = strings.matchHistoryTitle
             )
         }
     ) { screenPadding ->

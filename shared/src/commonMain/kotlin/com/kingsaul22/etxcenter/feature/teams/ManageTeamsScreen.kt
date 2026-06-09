@@ -20,6 +20,7 @@ import com.kingsaul22.etxcenter.domain.model.Team
 import org.koin.compose.koinInject
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,20 +48,9 @@ fun ManageTeamsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(strings.manageTeamsTitle) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = strings.goBack
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            EtxTopAppBar(
+                title = strings.manageTeamsTitle,
+                onBackClick = onBackClick
             )
         },
         floatingActionButton = {

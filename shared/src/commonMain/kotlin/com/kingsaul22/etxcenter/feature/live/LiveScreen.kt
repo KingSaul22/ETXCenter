@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kingsaul22.etxcenter.core.ui.localization.AppStrings
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
 import com.kingsaul22.etxcenter.domain.model.LiveEvent
 import com.kingsaul22.etxcenter.domain.model.PlayerTelemetry
 import kotlinx.datetime.TimeZone
@@ -72,12 +73,8 @@ fun LiveScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(strings.liveMatchTitle) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            EtxTopAppBar(
+                title = strings.liveMatchTitle
             )
         }
     ) { screenPadding ->
