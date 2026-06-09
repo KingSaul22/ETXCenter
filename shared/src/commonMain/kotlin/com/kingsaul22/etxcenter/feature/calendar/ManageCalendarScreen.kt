@@ -254,6 +254,7 @@ private fun CalendarEntryDialog(
     var endTime by remember(initialEntry) { mutableStateOf(if (initialEntry != null) splitEpochToDateAndTime(initialEntry.endTime.epochSeconds).second else "") }
 
     var errorMessage by remember(initialEntry) { mutableStateOf<String?>(null) }
+    var isSubmitting by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -325,6 +326,7 @@ private fun CalendarEntryDialog(
         confirmButton = {
             TextButton(
                 onClick = {
+                    if (isSubmitting) return@TextButton
                     val start = parseDateTimeToEpoch("$startDate $startTime")
                     val end = parseDateTimeToEpoch("$endDate $endTime")
                     if (start == null || end == null) {
@@ -339,8 +341,10 @@ private fun CalendarEntryDialog(
                         errorMessage = strings.startBeforeEndMsg
                         return@TextButton
                     }
+                    isSubmitting = true
                     onConfirm(blueTeamId, orangeTeamId, start, end)
-                }
+                },
+                enabled = !isSubmitting
             ) {
                 Text(confirmLabel)
             }

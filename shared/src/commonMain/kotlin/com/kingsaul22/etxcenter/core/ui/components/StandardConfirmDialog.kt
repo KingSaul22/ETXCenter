@@ -6,6 +6,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
 @Composable
@@ -19,18 +23,26 @@ fun StandardConfirmDialog(
     modifier: Modifier = Modifier,
     isDestructive: Boolean = false
 ) {
+    var isSubmitting by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = { Text(message) },
         confirmButton = {
             TextButton(
-                onClick = onConfirm,
+                onClick = {
+                    if (!isSubmitting) {
+                        isSubmitting = true
+                        onConfirm()
+                    }
+                },
                 colors = if (isDestructive) {
                     ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 } else {
                     ButtonDefaults.textButtonColors()
-                }
+                },
+                enabled = !isSubmitting
             ) {
                 Text(confirmText)
             }
