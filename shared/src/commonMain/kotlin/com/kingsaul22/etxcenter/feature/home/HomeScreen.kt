@@ -133,221 +133,15 @@ fun HomeScreen(
             }
 
             if (state.isAdmin) {
-                // Admin specific layout
-                Text(
-                    text = strings.welcomeBackAdmin,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
+                AdminHomeContent(
+                    state = state,
+                    onManageTeamsClick = onManageTeamsClick,
+                    onManagePlayersClick = onManagePlayersClick,
+                    onManageMetadataClick = onManageMetadataClick,
+                    onManageCalendarClick = onManageCalendarClick
                 )
-
-                Text(
-                    text = strings.dbStatusTitle,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    StatCard(
-                        label = strings.statTeams,
-                        value = state.teamCount.toString(),
-                        iconLetter = "T",
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label = strings.statPlayers,
-                        value = state.playerCount.toString(),
-                        iconLetter = "P",
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label = strings.statEvents,
-                        value = state.activeEventsCount.toString(),
-                        iconLetter = "E",
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Text(
-                    text = strings.quickActions,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    QuickActionCard(
-                        label = strings.actionManageTeams,
-                        onClick = onManageTeamsClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                    QuickActionCard(
-                        label = strings.actionManagePlayers,
-                        onClick = onManagePlayersClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    QuickActionCard(
-                        label = strings.actionEditMetadata,
-                        onClick = onManageMetadataClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                    QuickActionCard(
-                        label = strings.actionManageCalendar,
-                        onClick = onManageCalendarClick,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
             } else {
-                // Fan/Non-Admin layout
-                Text(
-                    text = strings.welcomeToEtx,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Text(
-                    text = strings.trackFavoriteTeams,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "ETX League Hub",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "SAVETX connects Rocket League players, statistics, and live updates directly to the cloud. Explore teams, match profiles, and follow live feeds from the dashboard.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-                        )
-                    }
-                }
-
-                Text(
-                    text = strings.competitionResume,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    StatCard(
-                        label = "Total ${strings.statTeams}",
-                        value = state.teamCount.toString(),
-                        iconLetter = "T",
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        label = "Total ${strings.statPlayers}",
-                        value = state.playerCount.toString(),
-                        iconLetter = "P",
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text(
-                    text = strings.upcomingMatchesTitle,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
-
-                if (state.upcomingMatches.isEmpty()) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    ) {
-                        Text(
-                            text = strings.noUpcomingMatches,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
-                } else {
-                    state.upcomingMatches.forEach { entry ->
-                        MatchOverviewCard(
-                            blueTeamName = entry.blueTeamName,
-                            orangeTeamName = entry.orangeTeamName,
-                            blueTeamLogoUrl = entry.blueTeamLogoUrl,
-                            orangeTeamLogoUrl = entry.orangeTeamLogoUrl,
-                            topContent = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    val statusColor = if (entry.status == HomeMatchStatus.ACTIVE) {
-                                        MaterialTheme.colorScheme.error
-                                    } else {
-                                        MaterialTheme.colorScheme.secondary
-                                    }
-                                    val statusText = if (entry.status == HomeMatchStatus.ACTIVE) {
-                                        strings.statusInProgress
-                                    } else {
-                                        strings.statusScheduled
-                                    }
-                                    Surface(
-                                        color = statusColor.copy(alpha = 0.15f),
-                                        contentColor = statusColor,
-                                        shape = MaterialTheme.shapes.small
-                                    ) {
-                                        Text(
-                                            text = statusText.uppercase(),
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-
-                                    if (entry.status == HomeMatchStatus.ACTIVE && entry.gamesPlayed > 0) {
-                                        Text(
-                                            text = "${strings.gamesPlayedLabel}: ${entry.gamesPlayed}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            },
-                            bottomContent = {
-                                val startStr = formatEpochToDateTime(entry.startTimeEpoch)
-                                val endStr = formatEpochToDateTime(entry.endTimeEpoch)
-                                Text(
-                                    text = "$startStr - $endStr",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
+                FanHomeContent(state = state)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -367,5 +161,237 @@ private fun formatEpochToDateTime(epochSeconds: Long): String {
         "$year-$month-$day $hour:$minute"
     } catch (e: Exception) {
         ""
+    }
+}
+
+@Composable
+private fun AdminHomeContent(
+    state: HomeUiState,
+    onManageTeamsClick: () -> Unit,
+    onManagePlayersClick: () -> Unit,
+    onManageMetadataClick: () -> Unit,
+    onManageCalendarClick: () -> Unit
+) {
+    val strings = LocalStrings.current
+
+    Text(
+        text = strings.welcomeBackAdmin,
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold
+    )
+
+    Text(
+        text = strings.dbStatusTitle,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        StatCard(
+            label = strings.statTeams,
+            value = state.teamCount.toString(),
+            iconLetter = "T",
+            modifier = Modifier.weight(1f)
+        )
+        StatCard(
+            label = strings.statPlayers,
+            value = state.playerCount.toString(),
+            iconLetter = "P",
+            modifier = Modifier.weight(1f)
+        )
+        StatCard(
+            label = strings.statEvents,
+            value = state.activeEventsCount.toString(),
+            iconLetter = "E",
+            modifier = Modifier.weight(1f)
+        )
+    }
+
+    Text(
+        text = strings.quickActions,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.SemiBold
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        QuickActionCard(
+            label = strings.actionManageTeams,
+            onClick = onManageTeamsClick,
+            modifier = Modifier.weight(1f)
+        )
+        QuickActionCard(
+            label = strings.actionManagePlayers,
+            onClick = onManagePlayersClick,
+            modifier = Modifier.weight(1f)
+        )
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        QuickActionCard(
+            label = strings.actionEditMetadata,
+            onClick = onManageMetadataClick,
+            modifier = Modifier.weight(1f)
+        )
+        QuickActionCard(
+            label = strings.actionManageCalendar,
+            onClick = onManageCalendarClick,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun FanHomeContent(
+    state: HomeUiState
+) {
+    val strings = LocalStrings.current
+
+    Text(
+        text = strings.welcomeToEtx,
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Bold
+    )
+
+    Text(
+        text = strings.trackFavoriteTeams,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "ETX League Hub",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "SAVETX connects Rocket League players, statistics, and live updates directly to the cloud. Explore teams, match profiles, and follow live feeds from the dashboard.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+            )
+        }
+    }
+
+    Text(
+        text = strings.competitionResume,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.SemiBold
+    )
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        StatCard(
+            label = "Total ${strings.statTeams}",
+            value = state.teamCount.toString(),
+            iconLetter = "T",
+            modifier = Modifier.weight(1f)
+        )
+        StatCard(
+            label = "Total ${strings.statPlayers}",
+            value = state.playerCount.toString(),
+            iconLetter = "P",
+            modifier = Modifier.weight(1f)
+        )
+    }
+
+    Spacer(modifier = Modifier.height(24.dp))
+
+    Text(
+        text = strings.upcomingMatchesTitle,
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.SemiBold
+    )
+
+    if (state.upcomingMatches.isEmpty()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Text(
+                text = strings.noUpcomingMatches,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    } else {
+        state.upcomingMatches.forEach { entry ->
+            MatchOverviewCard(
+                blueTeamName = entry.blueTeamName,
+                orangeTeamName = entry.orangeTeamName,
+                blueTeamLogoUrl = entry.blueTeamLogoUrl,
+                orangeTeamLogoUrl = entry.orangeTeamLogoUrl,
+                topContent = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        val statusColor = if (entry.status == HomeMatchStatus.ACTIVE) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.secondary
+                        }
+                        val statusText = if (entry.status == HomeMatchStatus.ACTIVE) {
+                            strings.statusInProgress
+                        } else {
+                            strings.statusScheduled
+                        }
+                        Surface(
+                            color = statusColor.copy(alpha = 0.15f),
+                            contentColor = statusColor,
+                            shape = MaterialTheme.shapes.small
+                        ) {
+                            Text(
+                                text = statusText.uppercase(),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        if (entry.status == HomeMatchStatus.ACTIVE && entry.gamesPlayed > 0) {
+                            Text(
+                                text = "${strings.gamesPlayedLabel}: ${entry.gamesPlayed}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                },
+                bottomContent = {
+                    val startStr = formatEpochToDateTime(entry.startTimeEpoch)
+                    val endStr = formatEpochToDateTime(entry.endTimeEpoch)
+                    Text(
+                        text = "$startStr - $endStr",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }
