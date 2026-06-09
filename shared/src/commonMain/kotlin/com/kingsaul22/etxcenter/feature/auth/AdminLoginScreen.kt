@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,20 +55,9 @@ fun AdminLoginScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(strings.adminLoginTitle) },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = strings.goBack
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            EtxTopAppBar(
+                title = strings.adminLoginTitle,
+                onBackClick = onBackClick
             )
         }
     ) { screenPadding ->

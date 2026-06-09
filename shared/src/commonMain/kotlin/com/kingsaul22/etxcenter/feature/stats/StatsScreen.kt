@@ -33,7 +33,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.koin.compose.koinInject
 
+import org.koin.compose.koinInject
+
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.MatchOverviewCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,12 +50,8 @@ fun StatsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(strings.matchHistoryTitle) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+            EtxTopAppBar(
+                title = strings.matchHistoryTitle
             )
         }
     ) { screenPadding ->
@@ -100,82 +100,44 @@ fun MatchCard(
     val isBlueWinner = match.blueScore > match.orangeScore
     val isOrangeWinner = match.orangeScore > match.blueScore
 
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+    MatchOverviewCard(
+        blueTeamName = match.blueTeamName,
+        orangeTeamName = match.orangeTeamName,
+        modifier = Modifier.clickable { onClick() },
+        elevated = true,
+        topContent = {
             Text(
                 text = match.formattedDate,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+        },
+        trailingContent = {
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.Center
             ) {
-                // Blue Team Label & Score
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = match.blueTeamName,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = if (isBlueWinner) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isBlueWinner) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = match.blueScore.toString(),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = if (isBlueWinner) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isBlueWinner) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                
+                Text(
+                    text = match.blueScore.toString(),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = if (isBlueWinner) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isBlueWinner) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Text(
                     text = " - ",
                     modifier = Modifier.padding(horizontal = 8.dp),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.outline
                 )
-                
-                // Orange Team Label & Score
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = match.orangeScore.toString(),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = if (isOrangeWinner) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isOrangeWinner) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = match.orangeTeamName,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = if (isOrangeWinner) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isOrangeWinner) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.End,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+                Text(
+                    text = match.orangeScore.toString(),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = if (isOrangeWinner) FontWeight.Bold else FontWeight.Normal,
+                    color = if (isOrangeWinner) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
-    }
+    )
 }
