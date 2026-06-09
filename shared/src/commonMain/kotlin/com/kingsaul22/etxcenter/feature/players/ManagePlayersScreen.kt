@@ -38,10 +38,7 @@ fun ManagePlayersScreen(
     var playerToEdit by remember { mutableStateOf<Player?>(null) }
     var playerToDelete by remember { mutableStateOf<Player?>(null) }
 
-    // Forms fields
-    var playerIdInput by remember { mutableStateOf("") }
-    var displayNameInput by remember { mutableStateOf("") }
-    var selectedTeamId by remember { mutableStateOf<String?>(null) }
+
 
     Scaffold(
         topBar = {
@@ -52,12 +49,7 @@ fun ManagePlayersScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    playerIdInput = ""
-                    displayNameInput = ""
-                    selectedTeamId = null
-                    showCreateDialog = true
-                }
+                onClick = { showCreateDialog = true }
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = strings.addPlayerDesc)
             }
@@ -151,11 +143,7 @@ fun ManagePlayersScreen(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     IconButton(
-                                        onClick = {
-                                            playerToEdit = player
-                                            displayNameInput = player.displayName
-                                            selectedTeamId = player.teamId
-                                        }
+                                        onClick = { playerToEdit = player }
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Edit,
@@ -181,158 +169,31 @@ fun ManagePlayersScreen(
 
     // Add Player Dialog
     if (showCreateDialog) {
-        AlertDialog(
-            onDismissRequest = { showCreateDialog = false },
-            title = { Text(strings.createPlayerTitle) },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedTextField(
-                        value = playerIdInput,
-                        onValueChange = { playerIdInput = it },
-                        label = { Text(strings.platformIdLabel) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = displayNameInput,
-                        onValueChange = { displayNameInput = it },
-                        label = { Text(strings.playerNameLabel) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(strings.selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { selectedTeamId = null }
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(selected = selectedTeamId == null, onClick = { selectedTeamId = null })
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(strings.unassignedMsg)
-                        }
-                        state.teams.forEach { team ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { selectedTeamId = team.id }
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(selected = selectedTeamId == team.id, onClick = { selectedTeamId = team.id })
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(team.name)
-                            }
-                        }
-                    }
-                }
+        PlayerFormDialog(
+            title = strings.createPlayerTitle,
+            initialPlayer = null,
+            teams = state.teams,
+            onConfirm = { id, name, teamId ->
+                viewModel.createPlayer(id, name, teamId)
+                showCreateDialog = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (playerIdInput.isNotBlank() && displayNameInput.isNotBlank()) {
-                            viewModel.createPlayer(playerIdInput, displayNameInput, selectedTeamId)
-                            showCreateDialog = false
-                        }
-                    }
-                ) {
-                    Text(strings.create)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCreateDialog = false }) {
-                    Text(strings.cancel)
-                }
-            }
+            confirmLabel = strings.create,
+            onDismiss = { showCreateDialog = false }
         )
     }
 
     // Edit Player Dialog
     playerToEdit?.let { player ->
-        AlertDialog(
-            onDismissRequest = { playerToEdit = null },
-            title = { Text(strings.editPlayerTitle) },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    OutlinedTextField(
-                        value = player.id,
-                        onValueChange = {},
-                        label = { Text(strings.playerIdReadOnlyLabel) },
-                        enabled = false,
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = displayNameInput,
-                        onValueChange = { displayNameInput = it },
-                        label = { Text(strings.playerNameLabel) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(strings.selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { selectedTeamId = null }
-                                .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(selected = selectedTeamId == null, onClick = { selectedTeamId = null })
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(strings.unassignedMsg)
-                        }
-                        state.teams.forEach { team ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { selectedTeamId = team.id }
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(selected = selectedTeamId == team.id, onClick = { selectedTeamId = team.id })
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(team.name)
-                            }
-                        }
-                    }
-                }
+        PlayerFormDialog(
+            title = strings.editPlayerTitle,
+            initialPlayer = player,
+            teams = state.teams,
+            onConfirm = { id, name, teamId ->
+                viewModel.updatePlayer(id, name, teamId)
+                playerToEdit = null
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (displayNameInput.isNotBlank()) {
-                            viewModel.updatePlayer(player.id, displayNameInput, selectedTeamId)
-                            playerToEdit = null
-                        }
-                    }
-                ) {
-                    Text(strings.save)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { playerToEdit = null }) {
-                    Text(strings.cancel)
-                }
-            }
+            confirmLabel = strings.save,
+            onDismiss = { playerToEdit = null }
         )
     }
 
@@ -352,4 +213,94 @@ fun ManagePlayersScreen(
             onDismiss = { playerToDelete = null }
         )
     }
+}
+
+@Composable
+private fun PlayerFormDialog(
+    title: String,
+    initialPlayer: Player?,
+    teams: List<com.kingsaul22.etxcenter.domain.model.Team>,
+    onConfirm: (id: String, name: String, teamId: String?) -> Unit,
+    confirmLabel: String,
+    onDismiss: () -> Unit
+) {
+    val strings = LocalStrings.current
+    var playerIdInput by remember(initialPlayer) { mutableStateOf(initialPlayer?.id ?: "") }
+    var displayNameInput by remember(initialPlayer) { mutableStateOf(initialPlayer?.displayName ?: "") }
+    var selectedTeamId by remember(initialPlayer) { mutableStateOf(initialPlayer?.teamId) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                OutlinedTextField(
+                    value = playerIdInput,
+                    onValueChange = { if (initialPlayer == null) playerIdInput = it },
+                    label = { Text(if (initialPlayer == null) strings.platformIdLabel else strings.playerIdReadOnlyLabel) },
+                    singleLine = true,
+                    enabled = initialPlayer == null,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = displayNameInput,
+                    onValueChange = { displayNameInput = it },
+                    label = { Text(strings.playerNameLabel) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(strings.selectTeamLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { selectedTeamId = null }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(selected = selectedTeamId == null, onClick = { selectedTeamId = null })
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(strings.unassignedMsg)
+                    }
+                    teams.forEach { team ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { selectedTeamId = team.id }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = selectedTeamId == team.id, onClick = { selectedTeamId = team.id })
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(team.name)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (playerIdInput.isNotBlank() && displayNameInput.isNotBlank()) {
+                        onConfirm(playerIdInput, displayNameInput, selectedTeamId)
+                    }
+                }
+            ) {
+                Text(confirmLabel)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(strings.cancel)
+            }
+        }
+    )
 }

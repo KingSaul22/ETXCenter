@@ -45,30 +45,7 @@ fun ManageCalendarScreen(
     var entryToEdit by remember { mutableStateOf<CalendarEntry?>(null) }
     var entryToDelete by remember { mutableStateOf<CalendarEntry?>(null) }
 
-    // Form fields — date and time are split for picker integration
-    var blueTeamId by remember { mutableStateOf("") }
-    var orangeTeamId by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf("") }
-    var startTime by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
-    var endTime by remember { mutableStateOf("") }
 
-    var showError by remember { mutableStateOf<String?>(null) }
-
-    // Form initialization helper — populate fields when editing
-    LaunchedEffect(entryToEdit) {
-        showError = null
-        entryToEdit?.let { entry ->
-            blueTeamId = entry.blueTeamId
-            orangeTeamId = entry.orangeTeamId
-            val (sd, st) = splitEpochToDateAndTime(entry.startTime.epochSeconds)
-            val (ed, et) = splitEpochToDateAndTime(entry.endTime.epochSeconds)
-            startDate = sd
-            startTime = st
-            endDate = ed
-            endTime = et
-        }
-    }
 
     Scaffold(
         topBar = {
@@ -79,16 +56,7 @@ fun ManageCalendarScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    blueTeamId = ""
-                    orangeTeamId = ""
-                    startDate = ""
-                    startTime = ""
-                    endDate = ""
-                    endTime = ""
-                    showError = null
-                    showCreateDialog = true
-                }
+                onClick = { showCreateDialog = true }
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = strings.addCalendarDesc)
             }
@@ -204,38 +172,12 @@ fun ManageCalendarScreen(
     if (showCreateDialog) {
         CalendarEntryDialog(
             title = strings.createCalendarTitle,
-            startDate = startDate,
-            startTime = startTime,
-            endDate = endDate,
-            endTime = endTime,
-            onStartDateChange = { startDate = it },
-            onStartTimeChange = { startTime = it },
-            onEndDateChange = { endDate = it },
-            onEndTimeChange = { endTime = it },
-            blueTeamId = blueTeamId,
-            orangeTeamId = orangeTeamId,
-            onBlueTeamSelected = { blueTeamId = it },
-            onOrangeTeamSelected = { orangeTeamId = it },
+            initialEntry = null,
             teams = state.teams,
-            errorMessage = showError,
-            onConfirm = {
-                val start = parseDateTimeToEpoch("$startDate $startTime")
-                val end = parseDateTimeToEpoch("$endDate $endTime")
-                if (start == null || end == null) {
-                    showError = strings.invalidDateTimeMsg
-                    return@CalendarEntryDialog
-                }
-                if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
-                    showError = strings.selectBothTeamsMsg
-                    return@CalendarEntryDialog
-                }
-                if (start > end) {
-                    showError = strings.startBeforeEndMsg
-                    return@CalendarEntryDialog
-                }
+            onConfirm = { bId, oId, start, end ->
                 viewModel.createCalendarEntry(
-                    blueTeamId = blueTeamId,
-                    orangeTeamId = orangeTeamId,
+                    blueTeamId = bId,
+                    orangeTeamId = oId,
                     startTime = start,
                     endTime = end
                 )
@@ -252,39 +194,13 @@ fun ManageCalendarScreen(
     entryToEdit?.let { entry ->
         CalendarEntryDialog(
             title = strings.editCalendarTitle,
-            startDate = startDate,
-            startTime = startTime,
-            endDate = endDate,
-            endTime = endTime,
-            onStartDateChange = { startDate = it },
-            onStartTimeChange = { startTime = it },
-            onEndDateChange = { endDate = it },
-            onEndTimeChange = { endTime = it },
-            blueTeamId = blueTeamId,
-            orangeTeamId = orangeTeamId,
-            onBlueTeamSelected = { blueTeamId = it },
-            onOrangeTeamSelected = { orangeTeamId = it },
+            initialEntry = entry,
             teams = state.teams,
-            errorMessage = showError,
-            onConfirm = {
-                val start = parseDateTimeToEpoch("$startDate $startTime")
-                val end = parseDateTimeToEpoch("$endDate $endTime")
-                if (start == null || end == null) {
-                    showError = strings.invalidDateTimeMsg
-                    return@CalendarEntryDialog
-                }
-                if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
-                    showError = strings.selectBothTeamsMsg
-                    return@CalendarEntryDialog
-                }
-                if (start > end) {
-                    showError = strings.startBeforeEndMsg
-                    return@CalendarEntryDialog
-                }
+            onConfirm = { bId, oId, start, end ->
                 viewModel.updateCalendarEntry(
                     id = entry.id,
-                    blueTeamId = blueTeamId,
-                    orangeTeamId = orangeTeamId,
+                    blueTeamId = bId,
+                    orangeTeamId = oId,
                     startTime = start,
                     endTime = end
                 )
@@ -321,25 +237,23 @@ fun ManageCalendarScreen(
 @Composable
 private fun CalendarEntryDialog(
     title: String,
-    startDate: String,
-    startTime: String,
-    endDate: String,
-    endTime: String,
-    onStartDateChange: (String) -> Unit,
-    onStartTimeChange: (String) -> Unit,
-    onEndDateChange: (String) -> Unit,
-    onEndTimeChange: (String) -> Unit,
-    blueTeamId: String,
-    orangeTeamId: String,
-    onBlueTeamSelected: (String) -> Unit,
-    onOrangeTeamSelected: (String) -> Unit,
+    initialEntry: CalendarEntry?,
     teams: List<com.kingsaul22.etxcenter.domain.model.Team>,
-    errorMessage: String?,
-    onConfirm: () -> Unit,
+    onConfirm: (blueTeamId: String, orangeTeamId: String, startTimeEpoch: Long, endTimeEpoch: Long) -> Unit,
     confirmLabel: String,
     onDismiss: () -> Unit
 ) {
     val strings = LocalStrings.current
+
+    var blueTeamId by remember(initialEntry) { mutableStateOf(initialEntry?.blueTeamId ?: "") }
+    var orangeTeamId by remember(initialEntry) { mutableStateOf(initialEntry?.orangeTeamId ?: "") }
+
+    var startDate by remember(initialEntry) { mutableStateOf(if (initialEntry != null) splitEpochToDateAndTime(initialEntry.startTime.epochSeconds).first else "") }
+    var startTime by remember(initialEntry) { mutableStateOf(if (initialEntry != null) splitEpochToDateAndTime(initialEntry.startTime.epochSeconds).second else "") }
+    var endDate by remember(initialEntry) { mutableStateOf(if (initialEntry != null) splitEpochToDateAndTime(initialEntry.endTime.epochSeconds).first else "") }
+    var endTime by remember(initialEntry) { mutableStateOf(if (initialEntry != null) splitEpochToDateAndTime(initialEntry.endTime.epochSeconds).second else "") }
+
+    var errorMessage by remember(initialEntry) { mutableStateOf<String?>(null) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -360,8 +274,8 @@ private fun CalendarEntryDialog(
                 DateTimePickerField(
                     dateValue = startDate,
                     timeValue = startTime,
-                    onDateChange = onStartDateChange,
-                    onTimeChange = onStartTimeChange,
+                    onDateChange = { startDate = it },
+                    onTimeChange = { startTime = it },
                     label = strings.startLabel
                 )
 
@@ -374,8 +288,8 @@ private fun CalendarEntryDialog(
                 DateTimePickerField(
                     dateValue = endDate,
                     timeValue = endTime,
-                    onDateChange = onEndDateChange,
-                    onTimeChange = onEndTimeChange,
+                    onDateChange = { endDate = it },
+                    onTimeChange = { endTime = it },
                     label = strings.endLabel
                 )
 
@@ -395,7 +309,7 @@ private fun CalendarEntryDialog(
                 SearchableTeamDropdown(
                     teams = teams,
                     selectedTeamId = blueTeamId,
-                    onTeamSelected = onBlueTeamSelected,
+                    onTeamSelected = { blueTeamId = it },
                     label = strings.blueTeamLabel
                 )
 
@@ -403,13 +317,31 @@ private fun CalendarEntryDialog(
                 SearchableTeamDropdown(
                     teams = teams,
                     selectedTeamId = orangeTeamId,
-                    onTeamSelected = onOrangeTeamSelected,
+                    onTeamSelected = { orangeTeamId = it },
                     label = strings.orangeTeamLabel
                 )
             }
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            TextButton(
+                onClick = {
+                    val start = parseDateTimeToEpoch("$startDate $startTime")
+                    val end = parseDateTimeToEpoch("$endDate $endTime")
+                    if (start == null || end == null) {
+                        errorMessage = strings.invalidDateTimeMsg
+                        return@TextButton
+                    }
+                    if (blueTeamId.isBlank() || orangeTeamId.isBlank()) {
+                        errorMessage = strings.selectBothTeamsMsg
+                        return@TextButton
+                    }
+                    if (start > end) {
+                        errorMessage = strings.startBeforeEndMsg
+                        return@TextButton
+                    }
+                    onConfirm(blueTeamId, orangeTeamId, start, end)
+                }
+            ) {
                 Text(confirmLabel)
             }
         },
