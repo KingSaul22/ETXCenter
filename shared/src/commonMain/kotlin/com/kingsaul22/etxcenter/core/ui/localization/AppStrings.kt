@@ -184,7 +184,11 @@ sealed class AppStrings(
     // General
     val loading: String,
     val errorPrefix: String,
-    val retry: String
+    val retry: String,
+    val editPlayerDesc: String,
+    val editCalendarDesc: String,
+    val noTeamsFoundMsg: String,
+    val noPlayersFoundMsg: String
 ) {
     object English : AppStrings(
         languageCode = "en",
@@ -327,7 +331,11 @@ sealed class AppStrings(
         loginFailedError = "Login failed",
         loading = "Loading...",
         errorPrefix = "Connection Failed: ",
-        retry = "Retry"
+        retry = "Retry",
+        editPlayerDesc = "Edit Player",
+        editCalendarDesc = "Edit Calendar Entry",
+        noTeamsFoundMsg = "No teams found.",
+        noPlayersFoundMsg = "No players found."
     )
 
     object Spanish : AppStrings(
@@ -471,7 +479,11 @@ sealed class AppStrings(
         loginFailedError = "Error al iniciar sesión",
         loading = "Cargando...",
         errorPrefix = "Error de Conexión: ",
-        retry = "Reintentar"
+        retry = "Reintentar",
+        editPlayerDesc = "Editar Jugador",
+        editCalendarDesc = "Editar Entrada de Calendario",
+        noTeamsFoundMsg = "No se encontraron equipos.",
+        noPlayersFoundMsg = "No se encontraron jugadores."
     )
 
     companion object {
