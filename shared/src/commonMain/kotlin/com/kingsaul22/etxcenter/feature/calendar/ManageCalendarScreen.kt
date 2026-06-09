@@ -29,6 +29,8 @@ import org.koin.compose.koinInject
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.MatchOverviewCard
+import com.kingsaul22.etxcenter.core.ui.components.StandardConfirmDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,65 +128,39 @@ fun ManageCalendarScreen(
                         val startStr = formatEpochToDateTime(entry.startTime.epochSeconds)
                         val endStr = formatEpochToDateTime(entry.endTime.epochSeconds)
 
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
+                        MatchOverviewCard(
+                            blueTeamName = blueName,
+                            orangeTeamName = orangeName,
+                            topContent = {
+                                Text(
+                                    text = "${strings.windowLabel}: $startStr - $endStr",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            trailingContent = {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = "$blueName vs $orangeName",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                        Spacer(modifier = Modifier.height(2.dp))
-                                        Text(
-                                            text = "$strings.windowLabel: $startStr - $endStr",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    IconButton(onClick = { entryToEdit = entry }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = strings.editRoster,
+                                            tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        IconButton(
-                                            onClick = {
-                                                entryToEdit = entry
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Edit,
-                                                contentDescription = strings.editRoster,
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
-                                        IconButton(onClick = { entryToDelete = entry }) {
-                                            Icon(
-                                                imageVector = Icons.Default.Delete,
-                                                contentDescription = strings.delete,
-                                                tint = MaterialTheme.colorScheme.error
-                                            )
-                                        }
+                                    IconButton(onClick = { entryToDelete = entry }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Delete,
+                                            contentDescription = strings.delete,
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
                                     }
                                 }
-
-                                // Dynamic list of matched games
+                            },
+                            bottomContent = {
                                 if (entry.matchIds.isNotEmpty()) {
-                                    Spacer(modifier = Modifier.height(8.dp))
                                     Text(
                                         text = strings.playedMatchesLabel,
                                         style = MaterialTheme.typography.labelMedium,
@@ -215,7 +191,7 @@ fun ManageCalendarScreen(
                                     }
                                 }
                             }
-                        }
+                        )
                     }
                 }
             }
@@ -323,30 +299,17 @@ fun ManageCalendarScreen(
     // Delete Entry Alert Dialog
     // =============================================
     entryToDelete?.let { entry ->
-        AlertDialog(
-            onDismissRequest = { entryToDelete = null },
-            title = { Text(strings.deleteCalendarConfirmTitle) },
-            text = {
-                Text(strings.deleteCalendarConfirmMsg)
+        StandardConfirmDialog(
+            title = strings.deleteCalendarConfirmTitle,
+            message = strings.deleteCalendarConfirmMsg,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
+            isDestructive = true,
+            onConfirm = {
+                viewModel.deleteCalendarEntry(entry.id)
+                entryToDelete = null
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteCalendarEntry(entry.id)
-                        entryToDelete = null
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text(strings.delete)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { entryToDelete = null }) {
-                    Text(strings.cancel)
-                }
-            }
+            onDismiss = { entryToDelete = null }
         )
     }
 }
