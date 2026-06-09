@@ -78,7 +78,7 @@ fun StatsScreen(
                             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(uiState.matches) { match ->
+                            items(uiState.matches, key = { it.matchId }) { match ->
                                 MatchCard(
                                     match = match,
                                     onClick = { onMatchClick(match.matchId) }

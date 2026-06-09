@@ -75,7 +75,7 @@ fun ManageTeamsScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(teams) { team ->
+                    items(teams, key = { it.id }) { team ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
