@@ -7,9 +7,11 @@ import com.kingsaul22.etxcenter.domain.model.LiveEvent
 import com.kingsaul22.etxcenter.domain.model.LiveState
 import com.kingsaul22.etxcenter.domain.repository.ILiveRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retry
 
@@ -28,7 +30,8 @@ class LiveRepositoryImpl(
                 null
             }
         }
-        .retry { e ->
+        .flowOn(Dispatchers.Default)
+        .retry(3) { e ->
             e.printStackTrace()
             delay(1000)
             true
@@ -59,7 +62,8 @@ class LiveRepositoryImpl(
                     }
                     .reversed()
             }
-            .retry { e ->
+            .flowOn(Dispatchers.Default)
+            .retry(3) { e ->
                 e.printStackTrace()
                 delay(1000)
                 true
