@@ -46,6 +46,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.MatchOverviewCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -289,13 +290,12 @@ fun HomeScreen(
                     }
                 } else {
                     state.upcomingMatches.forEach { entry ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
+                        MatchOverviewCard(
+                            blueTeamName = entry.blueTeamName,
+                            orangeTeamName = entry.orangeTeamName,
+                            blueTeamLogoUrl = entry.blueTeamLogoUrl,
+                            orangeTeamLogoUrl = entry.orangeTeamLogoUrl,
+                            topContent = {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -332,75 +332,19 @@ fun HomeScreen(
                                         )
                                     }
                                 }
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Blue Team
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        TeamLogo(
-                                            logoUrl = entry.blueTeamLogoUrl,
-                                            modifier = Modifier.size(48.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = entry.blueTeamName,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-
-                                    Text(
-                                        text = "VS",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-
-                                    // Orange Team
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.weight(1f)
-                                    ) {
-                                        TeamLogo(
-                                            logoUrl = entry.orangeTeamLogoUrl,
-                                            modifier = Modifier.size(48.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = entry.orangeTeamName,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.SemiBold,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(12.dp))
-
+                            },
+                            bottomContent = {
                                 val startStr = formatEpochToDateTime(entry.startTimeEpoch)
                                 val endStr = formatEpochToDateTime(entry.endTimeEpoch)
                                 Text(
                                     text = "$startStr - $endStr",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
                                 )
                             }
-                        }
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
