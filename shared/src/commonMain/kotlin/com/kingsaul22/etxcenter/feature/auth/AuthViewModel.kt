@@ -4,41 +4,47 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kingsaul22.etxcenter.domain.repository.AuthResult
 import com.kingsaul22.etxcenter.domain.repository.IAuthRepository
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AuthViewModel(
     private val authRepository: IAuthRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Loading)
-    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
-    private var authJob: Job? = null
+    private val authResult = MutableStateFlow<AuthResult?>(null)
+
+    val uiState: StateFlow<AuthUiState> = authResult.flatMapLatest { result ->
+        when (result) {
+            null -> flowOf(AuthUiState.Loading)
+            is AuthResult.Success -> authRepository.getIsAdminFlow().map { isAdmin ->
+                AuthUiState.Authenticated(isAdmin = isAdmin)
+            }
+            is AuthResult.Failure -> flowOf(
+                AuthUiState.Error(result.cause.message ?: "Unknown authentication error")
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = AuthUiState.Loading
+    )
 
     init {
         authenticate()
     }
 
     fun authenticate() {
-        authJob?.cancel()
-        _uiState.value = AuthUiState.Loading
-        authJob = viewModelScope.launch {
-            when (val result = authRepository.signInSilently()) {
-                is AuthResult.Success -> {
-                    authRepository.getIsAdminFlow().collect { isAdmin ->
-                        _uiState.value = AuthUiState.Authenticated(isAdmin = isAdmin)
-                    }
-                }
-
-                is AuthResult.Failure -> {
-                    _uiState.value = AuthUiState.Error(
-                        result.cause.message ?: "Unknown authentication error"
-                    )
-                }
-            }
+        authResult.value = null
+        viewModelScope.launch {
+            authResult.value = authRepository.signInSilently()
         }
     }
 }
