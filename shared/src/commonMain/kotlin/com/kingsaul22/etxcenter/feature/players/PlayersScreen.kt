@@ -30,9 +30,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.koin.compose.koinInject
-
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,21 +65,34 @@ fun PlayersScreen(
             is PlayersUiState.Success -> {
                 val players = (uiState as PlayersUiState.Success).players
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(screenPadding)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
-
-                    items(players, key = { it.playerId }) { player ->
-                        PlayerCard(player = player)
+                if (players.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(screenPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = strings.noPlayersFoundMsg,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(screenPadding)
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
-                }
+                        items(players, key = { it.playerId }) { player ->
+                            PlayerCard(player = player)
+                        }
+
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+                    }
+                } // Closes else block
             }
         }
     }

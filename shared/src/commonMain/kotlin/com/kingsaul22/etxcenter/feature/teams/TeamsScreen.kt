@@ -34,9 +34,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.ui.components.TeamLogo
-import org.koin.compose.koinInject
-
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,21 +69,34 @@ fun TeamsScreen(
             is TeamsUiState.Success -> {
                 val teams = (uiState as TeamsUiState.Success).teams
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(screenPadding)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    item { Spacer(modifier = Modifier.height(8.dp)) }
-
-                    items(teams, key = { it.teamId }) { team ->
-                        TeamCard(team = team)
+                if (teams.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(screenPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = strings.noTeamsFoundMsg,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(screenPadding)
+                            .padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        item { Spacer(modifier = Modifier.height(8.dp)) }
 
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
-                }
+                        items(teams, key = { it.teamId }) { team ->
+                            TeamCard(team = team)
+                        }
+
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
+                    }
+                } // Closes else block
             }
         }
     }
