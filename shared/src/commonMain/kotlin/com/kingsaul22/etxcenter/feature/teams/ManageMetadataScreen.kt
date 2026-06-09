@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.StandardConfirmDialog
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -229,28 +230,17 @@ fun ManageMetadataScreen(
 
     entryToDelete?.let { key ->
         val deleteText = strings.deleteMetadataConfirmMsg.replace("{key}", key)
-        AlertDialog(
-            onDismissRequest = { entryToDelete = null },
-            title = { Text(strings.deleteEntryLabel) },
-            text = { Text(deleteText) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteEntry(key)
-                        entryToDelete = null
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text(strings.delete)
-                }
+        StandardConfirmDialog(
+            title = strings.deleteEntryLabel,
+            message = deleteText,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
+            isDestructive = true,
+            onConfirm = {
+                viewModel.deleteEntry(key)
+                entryToDelete = null
             },
-            dismissButton = {
-                TextButton(onClick = { entryToDelete = null }) {
-                    Text(strings.cancel)
-                }
-            }
+            onDismiss = { entryToDelete = null }
         )
     }
 }

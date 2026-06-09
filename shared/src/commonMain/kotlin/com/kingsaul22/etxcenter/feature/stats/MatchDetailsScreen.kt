@@ -44,6 +44,7 @@ import com.kingsaul22.etxcenter.core.ui.components.TeamLogo
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.TeamMatchupHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,64 +117,21 @@ fun MatchDetailsScreen(
                                 
                                 Spacer(modifier = Modifier.height(16.dp))
                                 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Blue Team
-                                    Column(
-                                        modifier = Modifier.weight(1f),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        TeamLogo(
-                                            logoUrl = uiState.blueTeamLogoUrl,
-                                            contentDescription = uiState.blueTeamName,
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .clip(CircleShape)
-                                        )
-                                        Spacer(modifier = Modifier.height(6.dp))
+                                TeamMatchupHeader(
+                                    blueTeamName = uiState.blueTeamName,
+                                    orangeTeamName = uiState.orangeTeamName,
+                                    blueTeamLogoUrl = uiState.blueTeamLogoUrl,
+                                    orangeTeamLogoUrl = uiState.orangeTeamLogoUrl,
+                                    centerContent = {
                                         Text(
-                                            text = uiState.blueTeamName,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 2
+                                            text = "${uiState.blueScore} - ${uiState.orangeScore}",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            fontWeight = FontWeight.Black,
+                                            color = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(horizontal = 16.dp)
                                         )
                                     }
-
-                                    // Score
-                                    Text(
-                                        text = "${uiState.blueScore} - ${uiState.orangeScore}",
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        fontWeight = FontWeight.Black,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.padding(horizontal = 16.dp)
-                                    )
-
-                                    // Orange Team
-                                    Column(
-                                        modifier = Modifier.weight(1f),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        TeamLogo(
-                                            logoUrl = uiState.orangeTeamLogoUrl,
-                                            contentDescription = uiState.orangeTeamName,
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .clip(CircleShape)
-                                        )
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                        Text(
-                                            text = uiState.orangeTeamName,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            textAlign = TextAlign.Center,
-                                            maxLines = 2
-                                        )
-                                    }
-                                }
+                                )
                             }
                         }
 

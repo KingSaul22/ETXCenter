@@ -21,6 +21,7 @@ import org.koin.compose.koinInject
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.StandardConfirmDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -164,30 +165,17 @@ fun ManageTeamsScreen(
 
     teamToDelete?.let { team ->
         val confirmMsg = strings.deleteTeamConfirmMsgDynamic.replace("{name}", team.name)
-        AlertDialog(
-            onDismissRequest = { teamToDelete = null },
-            title = { Text(strings.deleteTeamConfirmTitle) },
-            text = {
-                Text(confirmMsg)
+        StandardConfirmDialog(
+            title = strings.deleteTeamConfirmTitle,
+            message = confirmMsg,
+            confirmText = strings.delete,
+            dismissText = strings.cancel,
+            isDestructive = true,
+            onConfirm = {
+                viewModel.deleteTeam(team.id)
+                teamToDelete = null
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteTeam(team.id)
-                        teamToDelete = null
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text(strings.delete)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { teamToDelete = null }) {
-                    Text(strings.cancel)
-                }
-            }
+            onDismiss = { teamToDelete = null }
         )
     }
 
