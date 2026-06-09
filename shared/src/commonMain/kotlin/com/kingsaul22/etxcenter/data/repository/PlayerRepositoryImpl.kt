@@ -7,10 +7,12 @@ import com.kingsaul22.etxcenter.domain.model.Player
 import com.kingsaul22.etxcenter.domain.model.PlayerStats
 import com.kingsaul22.etxcenter.domain.repository.IPlayerRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retry
 
@@ -34,7 +36,8 @@ class PlayerRepositoryImpl(
                 }
             }
         }
-        .retry { e ->
+        .flowOn(Dispatchers.Default)
+        .retry(3) { e ->
             e.printStackTrace()
             delay(1000)
             true
@@ -58,7 +61,8 @@ class PlayerRepositoryImpl(
                 }
             }
         }
-        .retry { e ->
+        .flowOn(Dispatchers.Default)
+        .retry(3) { e ->
             e.printStackTrace()
             delay(1000)
             true

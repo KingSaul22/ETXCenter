@@ -2,9 +2,11 @@ package com.kingsaul22.etxcenter.data.repository
 
 import com.kingsaul22.etxcenter.domain.repository.IMetadataRepository
 import dev.gitlive.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.retry
 
@@ -38,7 +40,8 @@ class MetadataRepositoryImpl(
                 key to value
             }
         }
-            .retry { e ->
+            .flowOn(Dispatchers.Default)
+            .retry(3) { e ->
                 e.printStackTrace()
                 delay(1000)
                 true

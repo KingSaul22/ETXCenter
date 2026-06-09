@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.kingsaul22.etxcenter.domain.repository.ICalendarRepository
 import com.kingsaul22.etxcenter.domain.repository.ITeamRepository
 import com.kingsaul22.etxcenter.domain.repository.IMatchRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -40,7 +42,9 @@ class ManageCalendarViewModel(
             playedMatches = matches,
             isLoading = false
         )
-    }.stateIn(
+    }
+    .flowOn(Dispatchers.Default)
+    .stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = ManageCalendarUiState(isLoading = true)
