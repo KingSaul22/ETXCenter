@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import com.kingsaul22.etxcenter.core.ui.localization.AppStrings
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
+import com.kingsaul22.etxcenter.core.ui.components.TeamMatchupHeader
 import com.kingsaul22.etxcenter.domain.model.LiveEvent
 import com.kingsaul22.etxcenter.domain.model.PlayerTelemetry
 import kotlinx.datetime.TimeZone
@@ -409,77 +410,27 @@ private fun ScoreboardCard(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 24.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(vertical = 24.dp, horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            TeamScore(
-                label = strings.blueShort,
-                score = scoreBlue,
-                color = BlueTeam,
-                modifier = Modifier.weight(1f)
-            )
-
-            Text(
-                text = "VS",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.outline
-            )
-
-            TeamScore(
-                label = strings.orangeShort,
-                score = scoreOrange,
-                color = OrangeTeam,
-                modifier = Modifier.weight(1f)
+            TeamMatchupHeader(
+                blueTeamName = strings.blueShort,
+                orangeTeamName = strings.orangeShort,
+                blueTeamLogoUrl = null,
+                orangeTeamLogoUrl = null,
+                centerContent = {
+                    Text(
+                        text = "$scoreBlue - $scoreOrange",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             )
         }
-    }
-}
-
-@Composable
-private fun TeamScore(
-    label: String,
-    score: Int,
-    color: Color,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Surface(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape),
-            color = color,
-            shape = CircleShape
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text = label.first().toString(),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-            }
-        }
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = color
-        )
-
-        Text(
-            text = score.toString(),
-            style = MaterialTheme.typography.displayLarge,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
     }
 }
 
