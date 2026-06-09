@@ -147,7 +147,7 @@ fun ManagePlayersScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Edit,
-                                            contentDescription = strings.editRoster,
+                                            contentDescription = strings.editPlayerDesc,
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
@@ -228,6 +228,7 @@ private fun PlayerFormDialog(
     var playerIdInput by remember(initialPlayer) { mutableStateOf(initialPlayer?.id ?: "") }
     var displayNameInput by remember(initialPlayer) { mutableStateOf(initialPlayer?.displayName ?: "") }
     var selectedTeamId by remember(initialPlayer) { mutableStateOf(initialPlayer?.teamId) }
+    var isSubmitting by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -289,10 +290,12 @@ private fun PlayerFormDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (playerIdInput.isNotBlank() && displayNameInput.isNotBlank()) {
+                    if (playerIdInput.isNotBlank() && displayNameInput.isNotBlank() && !isSubmitting) {
+                        isSubmitting = true
                         onConfirm(playerIdInput, displayNameInput, selectedTeamId)
                     }
-                }
+                },
+                enabled = !isSubmitting
             ) {
                 Text(confirmLabel)
             }

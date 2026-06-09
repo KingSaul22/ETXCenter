@@ -75,7 +75,7 @@ fun ManageTeamsScreen(
                         .padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(teams) { team ->
+                    items(teams, key = { it.id }) { team ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -163,6 +163,7 @@ private fun CreateTeamDialog(
 ) {
     val strings = LocalStrings.current
     var teamNameInput by remember { mutableStateOf("") }
+    var isSubmitting by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -179,10 +180,12 @@ private fun CreateTeamDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (teamNameInput.isNotBlank()) {
+                    if (teamNameInput.isNotBlank() && !isSubmitting) {
+                        isSubmitting = true
                         onConfirm(teamNameInput)
                     }
-                }
+                },
+                enabled = !isSubmitting
             ) {
                 Text(strings.create)
             }
@@ -203,6 +206,7 @@ private fun TeamRosterDialog(
     onDismiss: () -> Unit
 ) {
     val strings = LocalStrings.current
+    var isSubmitting by remember { mutableStateOf(false) }
     val selectedPlayerIds = remember(team) {
         mutableStateListOf<String>().apply {
             addAll(allPlayers.filter { it.teamId == team.id }.map { it.id })
@@ -276,7 +280,13 @@ private fun TeamRosterDialog(
         },
         confirmButton = {
             TextButton(
-                onClick = { onConfirm(selectedPlayerIds.toList()) }
+                onClick = {
+                    if (!isSubmitting) {
+                        isSubmitting = true
+                        onConfirm(selectedPlayerIds.toList())
+                    }
+                },
+                enabled = !isSubmitting
             ) {
                 Text(strings.save)
             }
