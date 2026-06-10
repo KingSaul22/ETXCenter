@@ -18,7 +18,7 @@ import com.kingsaul22.etxcenter.feature.stats.StatsScreen
 import com.kingsaul22.etxcenter.feature.teams.ManageTeamsScreen
 import com.kingsaul22.etxcenter.feature.teams.ManageMetadataScreen
 import com.kingsaul22.etxcenter.feature.teams.TeamsScreen
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
@@ -63,7 +63,7 @@ fun AppNavHost(
 
         composable<MatchDetailsDestination> { backStackEntry ->
             val destination: MatchDetailsDestination = backStackEntry.toRoute()
-            val viewModel: MatchDetailsViewModel = koinInject(
+            val viewModel: MatchDetailsViewModel = koinViewModel(
                 parameters = { parametersOf(destination.matchId) }
             )
             MatchDetailsScreen(
