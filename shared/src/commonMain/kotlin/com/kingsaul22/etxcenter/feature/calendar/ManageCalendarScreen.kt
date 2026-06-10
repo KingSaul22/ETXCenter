@@ -25,7 +25,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
@@ -36,7 +36,7 @@ import com.kingsaul22.etxcenter.core.ui.components.StandardConfirmDialog
 @Composable
 fun ManageCalendarScreen(
     onBackClick: () -> Unit,
-    viewModel: ManageCalendarViewModel = koinInject()
+    viewModel: ManageCalendarViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current

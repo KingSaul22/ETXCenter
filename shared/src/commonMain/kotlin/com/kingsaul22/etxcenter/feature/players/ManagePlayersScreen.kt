@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.domain.model.Player
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
@@ -29,7 +29,7 @@ import com.kingsaul22.etxcenter.core.ui.components.StandardConfirmDialog
 @Composable
 fun ManagePlayersScreen(
     onBackClick: () -> Unit,
-    viewModel: ManagePlayersViewModel = koinInject()
+    viewModel: ManagePlayersViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current

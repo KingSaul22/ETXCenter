@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.domain.model.Team
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
@@ -27,7 +27,7 @@ import com.kingsaul22.etxcenter.core.ui.components.StandardConfirmDialog
 @Composable
 fun ManageTeamsScreen(
     onBackClick: () -> Unit,
-    viewModel: ManageTeamsViewModel = koinInject()
+    viewModel: ManageTeamsViewModel = koinViewModel()
 ) {
     val teams by viewModel.teams.collectAsState()
     val allPlayers by viewModel.players.collectAsState()

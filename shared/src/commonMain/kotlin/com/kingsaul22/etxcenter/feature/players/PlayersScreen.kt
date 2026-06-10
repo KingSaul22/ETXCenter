@@ -31,12 +31,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayersScreen(
-    viewModel: PlayersViewModel = koinInject()
+    viewModel: PlayersViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current
