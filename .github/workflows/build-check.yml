@@ -3,6 +3,15 @@ name: Build Check
 on:
   pull_request:
     branches: [ main ]
+    types: [ opened, synchronize, reopened, ready_for_review ]
+    paths:
+      - 'shared/**'
+      - 'androidApp/**'
+      - 'desktopApp/**'
+      - 'iosApp/**'
+      - 'gradle/**'
+      - '*.gradle.kts'
+      - 'gradle.properties'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,6 +25,7 @@ jobs:
   android:
     name: Android
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
     environment: development
     steps:
       - uses: actions/checkout@v6
@@ -39,6 +49,7 @@ jobs:
   desktop:
     name: Desktop — ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
