@@ -3,6 +3,7 @@ package com.kingsaul22.etxcenter.feature.live
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kingsaul22.etxcenter.domain.repository.ILiveRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -12,13 +13,21 @@ class LiveViewModel(
     private val liveRepository: ILiveRepository
 ) : ViewModel() {
 
+    private val _isStreamExpanded = MutableStateFlow(false)
+
+    fun toggleStreamExpanded() {
+        _isStreamExpanded.value = !_isStreamExpanded.value
+    }
+
     val uiState: StateFlow<LiveUiState> = combine(
         liveRepository.getLiveStateFlow(),
-        liveRepository.getLiveEventsFeedFlow()
-    ) { liveState, events ->
+        liveRepository.getLiveEventsFeedFlow(),
+        _isStreamExpanded
+    ) { liveState, events, isExpanded ->
         when (liveState) {
-            null -> LiveUiState.NoActiveMatch
+            null -> LiveUiState.NoActiveMatch(isExpanded)
             else -> LiveUiState.ActiveMatch(
+                isStreamExpanded = isExpanded,
                 arena = liveState.arena,
                 hasWinner = liveState.hasWinner,
                 isActive = liveState.isActive,
@@ -35,6 +44,6 @@ class LiveViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = LiveUiState.Loading
+        initialValue = LiveUiState.Loading()
     )
 }
