@@ -31,6 +31,7 @@ import dev.gitlive.firebase.database.database
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
+import org.koin.core.module.dsl.viewModel
 
 val appModule = module {
     // Global Firebase instances
@@ -47,17 +48,17 @@ val appModule = module {
     single<ICalendarRepository> { CalendarRepositoryImpl(get()) }
 
     // Register the ViewModel (using modern Koin DSL)
-    factory { AuthViewModel(get()) }
-    factory { HomeViewModel(get(), get(), get(), get(), get()) }
-    factory { LiveViewModel(get()) }
-    factory { StatsViewModel(get(), get()) }
-    factory { TeamsViewModel(get()) }
-    factory { ManageTeamsViewModel(get(), get()) }
-    factory { ManageMetadataViewModel(get()) }
-    factory { ManagePlayersViewModel(get(), get()) }
-    factory { ManageCalendarViewModel(get(), get(), get()) }
-    factory { PlayersViewModel(get()) }
-    factory { params -> MatchDetailsViewModel(matchId = params.get(), get(), get()) }
+    viewModel { AuthViewModel(get()) }
+    viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
+    viewModel { LiveViewModel(get()) }
+    viewModel { StatsViewModel(get(), get()) }
+    viewModel { TeamsViewModel(get()) }
+    viewModel { ManageTeamsViewModel(get(), get()) }
+    viewModel { ManageMetadataViewModel(get()) }
+    viewModel { ManagePlayersViewModel(get(), get()) }
+    viewModel { ManageCalendarViewModel(get(), get(), get()) }
+    viewModel { PlayersViewModel(get()) }
+    viewModel { params -> MatchDetailsViewModel(matchId = params.get(), get(), get()) }
 }
 
 fun initKoin(config: KoinAppDeclaration? = null) {

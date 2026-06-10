@@ -46,13 +46,13 @@ import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
 import com.kingsaul22.etxcenter.core.ui.components.StandardConfirmDialog
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageMetadataScreen(
     onBackClick: () -> Unit,
-    viewModel: ManageMetadataViewModel = koinInject()
+    viewModel: ManageMetadataViewModel = koinViewModel()
 ) {
     val metadata by viewModel.metadata.collectAsState()
     val strings = LocalStrings.current

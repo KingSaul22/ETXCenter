@@ -27,10 +27,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun App() {
-    val viewModel: AuthViewModel = koinInject()
+    val viewModel: AuthViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsState()
     
     var currentLanguage by rememberSaveable { mutableStateOf(Language.EN) }

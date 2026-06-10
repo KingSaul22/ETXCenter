@@ -31,9 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
 import com.kingsaul22.etxcenter.core.ui.components.EtxTopAppBar
@@ -43,7 +43,7 @@ import com.kingsaul22.etxcenter.core.ui.components.MatchOverviewCard
 @Composable
 fun StatsScreen(
     onMatchClick: (String) -> Unit,
-    viewModel: StatsViewModel = koinInject()
+    viewModel: StatsViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current

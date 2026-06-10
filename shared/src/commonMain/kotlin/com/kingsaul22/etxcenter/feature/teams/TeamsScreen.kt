@@ -35,12 +35,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kingsaul22.etxcenter.core.ui.components.TeamLogo
 import com.kingsaul22.etxcenter.core.ui.localization.LocalStrings
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamsScreen(
-    viewModel: TeamsViewModel = koinInject()
+    viewModel: TeamsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current

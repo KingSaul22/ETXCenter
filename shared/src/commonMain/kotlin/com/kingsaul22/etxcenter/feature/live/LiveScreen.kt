@@ -28,9 +28,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
@@ -55,7 +52,7 @@ import com.kingsaul22.etxcenter.domain.model.LiveEvent
 import com.kingsaul22.etxcenter.domain.model.PlayerTelemetry
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 import com.kingsaul22.etxcenter.feature.live.components.ClockRow
 import com.kingsaul22.etxcenter.feature.live.components.EventsEmptyPlaceholder
@@ -70,11 +67,10 @@ private const val TwitchChannel = "etxclan"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LiveScreen(
-    viewModel: LiveViewModel = koinInject()
+    viewModel: LiveViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val strings = LocalStrings.current
-    var isStreamVisible by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -84,7 +80,7 @@ fun LiveScreen(
         }
     ) { screenPadding ->
         when (val state = uiState) {
-            LiveUiState.Loading -> {
+            is LiveUiState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(screenPadding),
                     contentAlignment = Alignment.Center
@@ -93,7 +89,7 @@ fun LiveScreen(
                 }
             }
 
-            LiveUiState.NoActiveMatch -> {
+            is LiveUiState.NoActiveMatch -> {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -106,8 +102,8 @@ fun LiveScreen(
 
                     TwitchStreamCard(
                         channel = TwitchChannel,
-                        isExpanded = isStreamVisible,
-                        onToggleExpanded = { isStreamVisible = !isStreamVisible }
+                        isExpanded = state.isStreamExpanded,
+                        onToggleExpanded = viewModel::toggleStreamExpanded
                     )
 
                     Box(
@@ -138,8 +134,8 @@ fun LiveScreen(
 
                     TwitchStreamCard(
                         channel = TwitchChannel,
-                        isExpanded = isStreamVisible,
-                        onToggleExpanded = { isStreamVisible = !isStreamVisible }
+                        isExpanded = state.isStreamExpanded,
+                        onToggleExpanded = viewModel::toggleStreamExpanded
                     )
 
                     MatchHeader(

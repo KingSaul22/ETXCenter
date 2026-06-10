@@ -12,6 +12,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -70,13 +71,8 @@ fun AdaptiveScaffold(navController: NavHostController) {
                     }
                 }
             ) { innerPadding ->
-                if (isCompact) {
-                     AppNavHost(
-                         navController = navController,
-                         modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
-                     )
-                } else {
-                    Row(Modifier.fillMaxSize()) {
+                Row(Modifier.fillMaxSize()) {
+                    if (!isCompact) {
                         NavigationRail {
                             TopLevelDestination.entries.forEach { destination ->
                                 val label = when (destination) {
@@ -107,11 +103,14 @@ fun AdaptiveScaffold(navController: NavHostController) {
                                 )
                             }
                         }
-                        AppNavHost(
-                            navController = navController,
-                            modifier = Modifier.weight(1f)
-                        )
                     }
+
+                    AppNavHost(
+                        navController = navController,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(bottom = if (isCompact) innerPadding.calculateBottomPadding() else 0.dp)
+                    )
                 }
             }
         }
